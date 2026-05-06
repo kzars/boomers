@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>World Clock — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+<style>
+  .clock-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 14px; }
+  .clock-card { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .clock-card .city-name { font-weight: 700; font-size: 17px; color: var(--ink-soft); margin: 0 0 2px; }
+  .clock-card .time-disp { font-size: clamp(28px, 5vw, 40px); font-weight: 800; letter-spacing: -0.02em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); }
+  .clock-card .date-disp { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+  .clock-card .remove-btn { float: right; margin-top: -38px; }
+  .your-time .time-disp { color: var(--accent-hover); }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-clock-title">World Clock</h1>
+    <p class="subtitle" data-i18n="clock-subtitle">See the current time in cities around the world.</p>
+
+    <section class="panel step" data-step="1">
+      <h2 data-i18n="step-add-city">Add a city</h2>
+      <div class="row">
+        <div style="flex:2">
+          <label for="tzSelect" data-i18n="label-timezone">City / Time zone</label>
+          <select id="tzSelect"></select>
+        </div>
+        <div style="flex:none; align-self:flex-end">
+          <button class="btn btn-primary" id="addBtn" data-i18n="btn-add-tz">+ Add</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <div class="clock-grid" id="clockGrid"></div>
+    </section>
+  </main>
+
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    var ZONES = [
+      ['New York',    'America/New_York'],
+      ['Los Angeles', 'America/Los_Angeles'],
+      ['Chicago',     'America/Chicago'],
+      ['Toronto',     'America/Toronto'],
+      ['London',      'Europe/London'],
+      ['Paris',       'Europe/Paris'],
+      ['Berlin',      'Europe/Berlin'],
+      ['Riga',        'Europe/Riga'],
+      ['Vilnius',     'Europe/Vilnius'],
+      ['Tallinn',     'Europe/Tallinn'],
+      ['Helsinki',    'Europe/Helsinki'],
+      ['Stockholm',   'Europe/Stockholm'],
+      ['Warsaw',      'Europe/Warsaw'],
+      ['Kiev',        'Europe/Kiev'],
+      ['Moscow',      'Europe/Moscow'],
+      ['Dubai',       'Asia/Dubai'],
+      ['Mumbai',      'Asia/Kolkata'],
+      ['Bangkok',     'Asia/Bangkok'],
+      ['Singapore',   'Asia/Singapore'],
+      ['Tokyo',       'Asia/Tokyo'],
+      ['Sydney',      'Australia/Sydney'],
+      ['Auckland',    'Pacific/Auckland'],
+      ['Honolulu',    'Pacific/Honolulu'],
+      ['Sao Paulo',   'America/Sao_Paulo'],
+      ['Buenos Aires','America/Argentina/Buenos_Aires'],
+      ['Johannesburg','Africa/Johannesburg'],
+      ['Cairo',       'Africa/Cairo'],
+    ];
+
+    var tzSelect = document.getElementById('tzSelect');
+    var addBtn = document.getElementById('addBtn');
+    var clockGrid = document.getElementById('clockGrid');
+    var activeZones = [];
+
+    ZONES.forEach(function(z) {
+      var opt = document.createElement('option');
+      opt.value = z[1];
+      opt.textContent = z[0];
+      tzSelect.appendChild(opt);
+    });
+
+    function localTz() {
+      try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(e) { return 'UTC'; }
+    }
+
+    function makeCard(label, tz, isYours) {
+      var card = document.createElement('div');
+      card.className = 'clock-card' + (isYours ? ' your-time' : '');
+      card.dataset.tz = tz;
+      card.innerHTML = (
+        '<p class="city-name">' + label + '</p>' +
+        '<div class="time-disp" data-tz="' + tz + '">—</div>' +
+        '<div class="date-disp" data-tzdate="' + tz + '">—</div>' +
+        (!isYours ? '<button class="btn btn-secondary remove-btn" data-remove="' + tz + '" style="min-height:36px;padding:6px 12px;font-size:14px">✕</button>' : '')
+      );
+      return card;
+    }
+
+    function tick() {
+      var now = new Date();
+      document.querySelectorAll('[data-tz]').forEach(function(el) {
+        var tz = el.dataset.tz;
+        el.textContent = new Intl.DateTimeFormat(undefined, {
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+          hour12: false, timeZone: tz
+        }).format(now);
+      });
+      document.querySelectorAll('[data-tzdate]').forEach(function(el) {
+        var tz = el.dataset.tzdate;
+        el.textContent = new Intl.DateTimeFormat(undefined, {
+          weekday: 'short', month: 'short', day: 'numeric', timeZone: tz
+        }).format(now);
+      });
+    }
+
+    function addZone(label, tz, isYours) {
+      if (activeZones.indexOf(tz) !== -1) return;
+      activeZones.push(tz);
+      var card = makeCard(label, tz, isYours);
+      clockGrid.appendChild(card);
+      tick();
+    }
+
+    clockGrid.addEventListener('click', function(e) {
+      var tz = e.target.dataset.remove;
+      if (!tz) return;
+      var idx = activeZones.indexOf(tz);
+      if (idx !== -1) activeZones.splice(idx, 1);
+      var card = clockGrid.querySelector('.clock-card[data-tz="' + tz + '"]');
+      if (card) card.remove();
+    });
+
+    addBtn.addEventListener('click', function() {
+      var opt = tzSelect.options[tzSelect.selectedIndex];
+      addZone(opt.textContent, opt.value, false);
+    });
+
+    // Seed with local + a few defaults
+    var myTz = localTz();
+    var myLabel = (window.T && window.T['clock-your-time']) || 'Your time';
+    document.addEventListener('langchange', function() {
+      var lbl = (window.T && window.T['clock-your-time']) || 'Your time';
+      var el = clockGrid.querySelector('.your-time .city-name');
+      if (el) el.textContent = lbl;
+    });
+    addZone(myLabel, myTz, true);
+    addZone('New York', 'America/New_York', false);
+    addZone('London', 'Europe/London', false);
+
+    setInterval(tick, 1000);
+    tick();
+  </script>
+</body>
+</html>

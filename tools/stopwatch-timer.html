@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stopwatch & Timer — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+<style>
+  .clock-display {
+    font-size: clamp(56px, 12vw, 96px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-align: center;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    padding: 16px 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .clock-display.done { color: var(--success); }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-stop-title">Stopwatch &amp; Timer</h1>
+    <p class="subtitle" data-i18n="stop-subtitle">Count up with a stopwatch, or count down with a timer.</p>
+
+    <section class="panel step" data-step="1">
+      <div class="btn-row" role="tablist">
+        <button class="btn btn-primary" id="btnSW" role="tab" aria-selected="true" data-i18n="btn-stopwatch">⏱ Stopwatch</button>
+        <button class="btn btn-secondary" id="btnTM" role="tab" aria-selected="false" data-i18n="btn-timer">⏳ Timer</button>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <div id="timerInputs" class="row hidden" style="margin-bottom:12px">
+        <div>
+          <label for="timerMin" data-i18n="label-minutes">Minutes</label>
+          <input type="number" id="timerMin" min="0" max="99" step="1" value="5" />
+        </div>
+        <div>
+          <label for="timerSec" data-i18n="label-seconds">Seconds</label>
+          <input type="number" id="timerSec" min="0" max="59" step="1" value="0" />
+        </div>
+      </div>
+      <div class="clock-display" id="display">00:00.0</div>
+      <div class="btn-row center">
+        <button class="btn btn-primary" id="btnStart" data-i18n="btn-start">▶ Start</button>
+        <button class="btn btn-secondary" id="btnReset" data-i18n="btn-reset">↺ Reset</button>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    var mode = 'sw'; // 'sw' | 'tm'
+    var running = false;
+    var startTime = 0;
+    var elapsed = 0;
+    var interval = null;
+    var timerTarget = 0;
+
+    var btnSW = document.getElementById('btnSW');
+    var btnTM = document.getElementById('btnTM');
+    var timerInputs = document.getElementById('timerInputs');
+    var display = document.getElementById('display');
+    var btnStart = document.getElementById('btnStart');
+    var btnReset = document.getElementById('btnReset');
+    var banner = document.getElementById('banner');
+
+    function setMode(m) {
+      if (running) return;
+      mode = m;
+      elapsed = 0;
+      btnSW.className = 'btn ' + (m === 'sw' ? 'btn-primary' : 'btn-secondary');
+      btnTM.className = 'btn ' + (m === 'tm' ? 'btn-primary' : 'btn-secondary');
+      btnSW.setAttribute('aria-selected', m === 'sw');
+      btnTM.setAttribute('aria-selected', m === 'tm');
+      timerInputs.classList.toggle('hidden', m !== 'tm');
+      display.classList.remove('done');
+      Helpers.clearBanner(banner);
+      updateDisplay(0);
+    }
+
+    btnSW.addEventListener('click', function() { setMode('sw'); });
+    btnTM.addEventListener('click', function() { setMode('tm'); });
+
+    function pad(n, d) { return String(n).padStart(d, '0'); }
+
+    function updateDisplay(ms) {
+      if (mode === 'sw') {
+        var total = Math.floor(ms / 100);
+        var tenths = total % 10;
+        var secs = Math.floor(total / 10) % 60;
+        var mins = Math.floor(total / 600);
+        display.textContent = pad(mins, 2) + ':' + pad(secs, 2) + '.' + tenths;
+      } else {
+        var remaining = Math.max(0, timerTarget - ms);
+        var s = Math.ceil(remaining / 1000);
+        var m = Math.floor(s / 60);
+        var sec = s % 60;
+        display.textContent = pad(m, 2) + ':' + pad(sec, 2);
+        if (remaining === 0 && running) {
+          stopTimer();
+          display.classList.add('done');
+          var T = window.T || {};
+          Helpers.banner(banner, 'success', T['timer-done'] || 'Time is up!');
+          beep();
+        }
+      }
+    }
+
+    function beep() {
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 1.2);
+      } catch(e) {}
+    }
+
+    function stopTimer() {
+      running = false;
+      clearInterval(interval);
+      interval = null;
+      var T = window.T || {};
+      btnStart.textContent = T['btn-start'] || '▶ Start';
+    }
+
+    btnStart.addEventListener('click', function() {
+      Helpers.clearBanner(banner);
+      display.classList.remove('done');
+      if (running) {
+        running = false;
+        clearInterval(interval);
+        elapsed += Date.now() - startTime;
+        var T = window.T || {};
+        btnStart.textContent = T['btn-resume-sw'] || '⏵ Resume';
+        return;
+      }
+      if (mode === 'tm') {
+        var mins = parseInt(document.getElementById('timerMin').value, 10) || 0;
+        var secs = parseInt(document.getElementById('timerSec').value, 10) || 0;
+        timerTarget = (mins * 60 + secs) * 1000;
+        if (timerTarget <= 0) {
+          Helpers.banner(banner, 'warn', 'Set at least 1 second.');
+          return;
+        }
+        if (elapsed >= timerTarget) elapsed = 0;
+      }
+      running = true;
+      startTime = Date.now();
+      var T = window.T || {};
+      btnStart.textContent = T['btn-pause-sw'] || '⏸ Pause';
+      interval = setInterval(function() {
+        updateDisplay(elapsed + (Date.now() - startTime));
+      }, 100);
+    });
+
+    btnReset.addEventListener('click', function() {
+      if (running) {
+        clearInterval(interval);
+        running = false;
+      }
+      elapsed = 0;
+      display.classList.remove('done');
+      Helpers.clearBanner(banner);
+      updateDisplay(0);
+      var T = window.T || {};
+      btnStart.textContent = T['btn-start'] || '▶ Start';
+    });
+
+    updateDisplay(0);
+  </script>
+</body>
+</html>
