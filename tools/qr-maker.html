@@ -7,8 +7,12 @@
 <link rel="stylesheet" href="../assets/css/style.css" />
 <style>
   .qr-wrap { display:grid; place-items:center; padding:24px 0; background:var(--surface-2); border-radius:var(--radius-lg); border:2px solid var(--border); }
-  #qrcode { background:#fff; padding:16px; border-radius:12px; }
-  #qrcode canvas { display:block; }
+  #qrcode { background:#fff; padding:16px; border-radius:12px; max-width: 100%; }
+  #qrcode canvas { display:block; max-width: 100%; height: auto; }
+  @media (max-width: 480px) {
+    .qr-wrap { padding: 14px 0; }
+    #qrcode { padding: 10px; }
+  }
 </style>
 </head>
 <body>

@@ -7,11 +7,12 @@
 <link rel="stylesheet" href="../assets/css/style.css" />
 <style>
   .clock-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 14px; }
-  .clock-card { background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .clock-card { position: relative; background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; padding-right: 56px; }
   .clock-card .city-name { font-weight: 700; font-size: 17px; color: var(--ink-soft); margin: 0 0 2px; }
   .clock-card .time-disp { font-size: clamp(28px, 5vw, 40px); font-weight: 800; letter-spacing: -0.02em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); }
   .clock-card .date-disp { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
-  .clock-card .remove-btn { float: right; margin-top: -38px; }
+  .clock-card .remove-btn { position: absolute; top: 10px; right: 10px; min-height: 44px; min-width: 44px; padding: 0; font-size: 18px; }
+  .your-time { padding-right: 18px; }
   .your-time .time-disp { color: var(--accent-hover); }
 </style>
 </head>
@@ -99,7 +100,7 @@
         '<p class="city-name">' + label + '</p>' +
         '<div class="time-disp" data-tz="' + tz + '">—</div>' +
         '<div class="date-disp" data-tzdate="' + tz + '">—</div>' +
-        (!isYours ? '<button class="btn btn-secondary remove-btn" data-remove="' + tz + '" style="min-height:36px;padding:6px 12px;font-size:14px">✕</button>' : '')
+        (!isYours ? '<button class="btn btn-secondary remove-btn" aria-label="Remove" data-remove="' + tz + '">✕</button>' : '')
       );
       return card;
     }

@@ -6,10 +6,13 @@
 <title>Tip & Bill Splitter — Call Your Son</title>
 <link rel="stylesheet" href="../assets/css/style.css" />
 <style>
-  .tip-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-  .tip-buttons .btn { padding: 14px 18px; min-height: 56px; min-width: 80px; }
+  .tip-buttons { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+  .tip-buttons .btn { padding: 14px 8px; min-height: 56px; min-width: 0; }
   .tip-buttons .btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
   .tip-buttons .btn       { background: var(--surface); color: var(--ink); border: 2px solid var(--border-strong); }
+  @media (max-width: 420px) {
+    .tip-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
 </style>
 </head>
 <body>

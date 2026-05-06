@@ -38,21 +38,27 @@
     font-weight: 700;
     margin-bottom: 6px;
   }
-  .page-btns { display: flex; justify-content: center; gap: 6px; }
+  .page-btns { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
   .page-btns button {
     appearance: none;
     border: 2px solid var(--border-strong);
     background: var(--surface);
     font-size: 16px;
-    width: 36px; height: 36px;
+    width: 44px; height: 44px;
     border-radius: 8px;
     cursor: pointer;
     display: grid; place-items: center;
+    touch-action: manipulation;
   }
   .page-btns .del-btn { color: var(--error); border-color: var(--error); }
-  .page-btns .del-btn:hover { background: var(--error-soft); }
-  .page-btns button:hover { background: var(--accent-soft); }
+  @media (hover: hover) {
+    .page-btns .del-btn:hover { background: var(--error-soft); }
+    .page-btns button:hover { background: var(--accent-soft); }
+  }
   .rot-label { font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+  @media (max-width: 480px) {
+    .page-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  }
 </style>
 </head>
 <body>

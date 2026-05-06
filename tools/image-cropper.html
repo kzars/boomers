@@ -13,6 +13,7 @@
     cursor: crosshair;
     user-select: none;
     -webkit-user-select: none;
+    touch-action: none;
   }
   #sourceCanvas { display: block; max-width: 100%; border-radius: var(--radius); border: 2px solid var(--border); }
   #cropOverlay {
@@ -166,6 +167,20 @@
       showOverlay();
     }, { passive: true });
     canvasWrap.addEventListener('touchend', function() { drag.active = false; });
+
+    window.addEventListener('resize', function() {
+      if (!img) return;
+      var maxW = Math.min(img.width, canvasWrap.parentElement.clientWidth - 40 || 700);
+      var newScale = Math.min(1, maxW / img.width);
+      if (Math.abs(newScale - scale) < 0.001) return;
+      var ratio = newScale / scale;
+      scale = newScale;
+      sourceCanvas.width = Math.round(img.width * scale);
+      sourceCanvas.height = Math.round(img.height * scale);
+      sourceCanvas.getContext('2d').drawImage(img, 0, 0, sourceCanvas.width, sourceCanvas.height);
+      drag.startX *= ratio; drag.startY *= ratio; drag.x *= ratio; drag.y *= ratio;
+      showOverlay();
+    });
 
     downloadBtn.addEventListener('click', function() {
       if (!img) return;
