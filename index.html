@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Call Your Son — free tools so you don't have to</title>
-<meta name="description" content="50+ free, easy-to-use tools for everyday tasks: PDF, photos, calculators, converters, and more. No ads. No signups. Nothing leaves your computer." />
+<meta name="description" content="25+ free, easy-to-use tools for everyday tasks: PDF, photos, calculators, converters, and more. No ads. No signups. Nothing leaves your computer." />
 <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body class="hub">
@@ -14,74 +14,193 @@
   <main class="container">
     <section class="hero">
       <span class="badge" data-i18n="badge">Free • No signup • Private</span>
-      <h1 data-i18n="site-title">Easy Tools</h1>
-      <p class="subtitle" data-i18n="site-subtitle">Simple things that just work — no fuss, no clutter.</p>
+      <h1 data-i18n="site-title">Call Your Son</h1>
+      <p class="subtitle" data-i18n="site-subtitle">Free tools so you don't have to.</p>
+      <div class="search-wrap">
+        <input type="search" class="search-bar" id="toolSearch"
+               data-i18n-ph="search-ph" placeholder="Search tools…"
+               aria-label="Search tools" autocomplete="off" />
+      </div>
     </section>
 
-    <nav aria-label="Tools" class="tile-grid">
-      <a class="tile" href="tools/word-to-pdf.html">
-        <div class="icon" aria-hidden="true">📄</div>
-        <p class="title" data-i18n="tile-word-title">Word or Text → PDF</p>
-        <p class="desc"  data-i18n="tile-word-desc">Turn a Word document or any text into a tidy PDF.</p>
-      </a>
+    <div id="toolSections">
 
-      <a class="tile" href="tools/image-to-pdf.html">
-        <div class="icon" aria-hidden="true">🖼️</div>
-        <p class="title" data-i18n="tile-img-title">Photos → PDF</p>
-        <p class="desc"  data-i18n="tile-img-desc">Combine photos into one PDF — perfect for receipts.</p>
-      </a>
+      <!-- ── Documents & PDF ── -->
+      <section class="tool-section" data-section="docs">
+        <h2 class="section-heading">📄 <span data-i18n="cat-docs">Documents &amp; PDF</span></h2>
+        <nav aria-label="Documents and PDF tools" class="tile-grid">
+          <a class="tile" href="tools/word-to-pdf.html" data-keywords="word docx text type paste convert make pdf">
+            <div class="icon" aria-hidden="true">📄</div>
+            <p class="title" data-i18n="tile-word-title">Word or Text → PDF</p>
+            <p class="desc"  data-i18n="tile-word-desc">Turn a Word document or any text into a tidy PDF.</p>
+          </a>
+          <a class="tile" href="tools/image-to-pdf.html" data-keywords="photo picture image jpg jpeg png combine merge receipts pdf">
+            <div class="icon" aria-hidden="true">🖼️</div>
+            <p class="title" data-i18n="tile-img-title">Photos → PDF</p>
+            <p class="desc"  data-i18n="tile-img-desc">Combine photos into one PDF — perfect for receipts.</p>
+          </a>
+          <a class="tile" href="tools/pdf-merger.html" data-keywords="merge glue combine join multiple pdfs together">
+            <div class="icon" aria-hidden="true">📚</div>
+            <p class="title" data-i18n="tile-merge-title">Merge PDFs</p>
+            <p class="desc"  data-i18n="tile-merge-desc">Glue several PDFs together into a single file.</p>
+          </a>
+          <a class="tile" href="tools/pdf-splitter.html" data-keywords="split extract pages pdf page 3 section separate">
+            <div class="icon" aria-hidden="true">✂️</div>
+            <p class="title" data-i18n="tile-pdf-split-title">PDF Splitter</p>
+            <p class="desc"  data-i18n="tile-pdf-split-desc">Pull out specific pages from a PDF.</p>
+          </a>
+          <a class="tile" href="tools/pdf-compressor.html" data-keywords="compress shrink reduce size large pdf email smaller">
+            <div class="icon" aria-hidden="true">🗜️</div>
+            <p class="title" data-i18n="tile-pdf-comp-title">PDF Compressor</p>
+            <p class="desc"  data-i18n="tile-pdf-comp-desc">Shrink a large PDF so you can email it.</p>
+          </a>
+          <a class="tile" href="tools/pdf-rotate.html" data-keywords="rotate delete remove flip upside down page pdf scan">
+            <div class="icon" aria-hidden="true">🔄</div>
+            <p class="title" data-i18n="tile-pdf-rot-title">PDF Page Editor</p>
+            <p class="desc"  data-i18n="tile-pdf-rot-desc">Rotate or delete pages in a PDF.</p>
+          </a>
+        </nav>
+      </section>
 
-      <a class="tile" href="tools/pdf-merger.html">
-        <div class="icon" aria-hidden="true">📚</div>
-        <p class="title" data-i18n="tile-merge-title">Merge PDFs</p>
-        <p class="desc"  data-i18n="tile-merge-desc">Glue several PDFs together into a single file.</p>
-      </a>
+      <!-- ── Photos & Images ── -->
+      <section class="tool-section" data-section="photos">
+        <h2 class="section-heading">🖼️ <span data-i18n="cat-photos">Photos &amp; Images</span></h2>
+        <nav aria-label="Photos and images tools" class="tile-grid">
+          <a class="tile" href="tools/photo-resizer.html" data-keywords="resize shrink smaller photo email jpg jpeg png size reduce">
+            <div class="icon" aria-hidden="true">📷</div>
+            <p class="title" data-i18n="tile-photo-title">Photo Resizer</p>
+            <p class="desc"  data-i18n="tile-photo-desc">Shrink a big photo so it fits in an email.</p>
+          </a>
+          <a class="tile" href="tools/heic-to-jpg.html" data-keywords="heic heif iphone apple convert jpg jpeg windows open">
+            <div class="icon" aria-hidden="true">📱</div>
+            <p class="title" data-i18n="tile-heic-title">HEIC → JPG</p>
+            <p class="desc"  data-i18n="tile-heic-desc">Convert iPhone photos so Windows can open them.</p>
+          </a>
+          <a class="tile" href="tools/image-cropper.html" data-keywords="crop trim cut photo image profile picture size part">
+            <div class="icon" aria-hidden="true">🔲</div>
+            <p class="title" data-i18n="tile-crop-title">Image Cropper</p>
+            <p class="desc"  data-i18n="tile-crop-desc">Trim any photo to just the part you want.</p>
+          </a>
+          <a class="tile" href="tools/image-converter.html" data-keywords="convert format jpg jpeg png webp change image picture">
+            <div class="icon" aria-hidden="true">🔁</div>
+            <p class="title" data-i18n="tile-imgconv-title">Image Format Converter</p>
+            <p class="desc"  data-i18n="tile-imgconv-desc">Convert between JPG, PNG, and WebP.</p>
+          </a>
+        </nav>
+      </section>
 
-      <a class="tile" href="tools/read-aloud.html">
-        <div class="icon" aria-hidden="true">🔊</div>
-        <p class="title" data-i18n="tile-read-title">Read Aloud</p>
-        <p class="desc"  data-i18n="tile-read-desc">Paste any text and have your computer read it to you.</p>
-      </a>
+      <!-- ── Money & Math ── -->
+      <section class="tool-section" data-section="money">
+        <h2 class="section-heading">💰 <span data-i18n="cat-money">Money &amp; Math</span></h2>
+        <nav aria-label="Money and math tools" class="tile-grid">
+          <a class="tile" href="tools/tip-calculator.html" data-keywords="tip bill split restaurant friends how much percent gratuity">
+            <div class="icon" aria-hidden="true">💵</div>
+            <p class="title" data-i18n="tile-tip-title">Tip &amp; Bill Splitter</p>
+            <p class="desc"  data-i18n="tile-tip-desc">Calculate the tip and split the bill among friends.</p>
+          </a>
+          <a class="tile" href="tools/unit-converter.html" data-keywords="unit convert inches feet miles pounds cups celsius fahrenheit km kg liters gallons">
+            <div class="icon" aria-hidden="true">📏</div>
+            <p class="title" data-i18n="tile-unit-title">Unit Converter</p>
+            <p class="desc"  data-i18n="tile-unit-desc">Inches, pounds, cups, miles, Celsius — all in one spot.</p>
+          </a>
+          <a class="tile" href="tools/currency-converter.html" data-keywords="currency exchange rate dollar euro pound usd eur convert money">
+            <div class="icon" aria-hidden="true">💱</div>
+            <p class="title" data-i18n="tile-curr-title">Currency Converter</p>
+            <p class="desc"  data-i18n="tile-curr-desc">Look up today's rate between any two currencies.</p>
+          </a>
+          <a class="tile" href="tools/mortgage-calculator.html" data-keywords="mortgage loan monthly payment interest rate house home finance">
+            <div class="icon" aria-hidden="true">🏠</div>
+            <p class="title" data-i18n="tile-mort-title">Mortgage Calculator</p>
+            <p class="desc"  data-i18n="tile-mort-desc">Work out your monthly payment on any loan.</p>
+          </a>
+          <a class="tile" href="tools/date-calculator.html" data-keywords="date age birthday days between how old how many days until countdown">
+            <div class="icon" aria-hidden="true">📅</div>
+            <p class="title" data-i18n="tile-date-title">Date &amp; Age Calculator</p>
+            <p class="desc"  data-i18n="tile-date-desc">Days between dates, or how old someone is.</p>
+          </a>
+          <a class="tile" href="tools/discount-calculator.html" data-keywords="discount sale percent off how much save price shopping deal">
+            <div class="icon" aria-hidden="true">🏷️</div>
+            <p class="title" data-i18n="tile-disc-title">Discount Calculator</p>
+            <p class="desc"  data-i18n="tile-disc-desc">How much is 30% off $80? Answered in a tap.</p>
+          </a>
+          <a class="tile" href="tools/bmi-calculator.html" data-keywords="bmi body mass index weight height health overweight normal">
+            <div class="icon" aria-hidden="true">⚖️</div>
+            <p class="title" data-i18n="tile-bmi-title">BMI Calculator</p>
+            <p class="desc"  data-i18n="tile-bmi-desc">Check your body-mass index quickly.</p>
+          </a>
+        </nav>
+      </section>
 
-      <a class="tile" href="tools/big-text.html">
-        <div class="icon" aria-hidden="true">🔍</div>
-        <p class="title" data-i18n="tile-big-title">Big Text Reader</p>
-        <p class="desc"  data-i18n="tile-big-desc">See any text in a nice, large, easy-to-read size.</p>
-      </a>
+      <!-- ── Reading & Hearing ── -->
+      <section class="tool-section" data-section="reading">
+        <h2 class="section-heading">🔊 <span data-i18n="cat-reading">Reading &amp; Hearing</span></h2>
+        <nav aria-label="Reading and hearing tools" class="tile-grid">
+          <a class="tile" href="tools/read-aloud.html" data-keywords="read aloud text speech voice listen audio tts speak">
+            <div class="icon" aria-hidden="true">🔊</div>
+            <p class="title" data-i18n="tile-read-title">Read Aloud</p>
+            <p class="desc"  data-i18n="tile-read-desc">Paste any text and have your computer read it to you.</p>
+          </a>
+          <a class="tile" href="tools/big-text.html" data-keywords="big large text font size zoom read comfortable eyesight">
+            <div class="icon" aria-hidden="true">🔍</div>
+            <p class="title" data-i18n="tile-big-title">Big Text Reader</p>
+            <p class="desc"  data-i18n="tile-big-desc">See any text in a nice, large, easy-to-read size.</p>
+          </a>
+        </nav>
+      </section>
 
-      <a class="tile" href="tools/tip-calculator.html">
-        <div class="icon" aria-hidden="true">💵</div>
-        <p class="title" data-i18n="tile-tip-title">Tip &amp; Bill Splitter</p>
-        <p class="desc"  data-i18n="tile-tip-desc">Calculate the tip and split the bill among friends.</p>
-      </a>
+      <!-- ── Daily Life ── -->
+      <section class="tool-section" data-section="daily">
+        <h2 class="section-heading">🛟 <span data-i18n="cat-daily">Daily Life</span></h2>
+        <nav aria-label="Daily life tools" class="tile-grid">
+          <a class="tile" href="tools/qr-maker.html" data-keywords="qr code make wifi password website link scan">
+            <div class="icon" aria-hidden="true">🔳</div>
+            <p class="title" data-i18n="tile-qr-title">QR Code Maker</p>
+            <p class="desc"  data-i18n="tile-qr-desc">Make a QR code for a website, Wi-Fi, or any text.</p>
+          </a>
+          <a class="tile" href="tools/stopwatch-timer.html" data-keywords="stopwatch timer countdown cooking alarm beep minutes seconds">
+            <div class="icon" aria-hidden="true">⏱️</div>
+            <p class="title" data-i18n="tile-stop-title">Stopwatch &amp; Timer</p>
+            <p class="desc"  data-i18n="tile-stop-desc">Count up, count down, and beep when done.</p>
+          </a>
+          <a class="tile" href="tools/world-clock.html" data-keywords="world clock timezone time abroad family what time city country">
+            <div class="icon" aria-hidden="true">🌍</div>
+            <p class="title" data-i18n="tile-clock-title">World Clock</p>
+            <p class="desc"  data-i18n="tile-clock-desc">See what time it is for family in another country.</p>
+          </a>
+          <a class="tile" href="tools/notepad.html" data-keywords="notepad notes text write save remember local storage keep">
+            <div class="icon" aria-hidden="true">📝</div>
+            <p class="title" data-i18n="tile-note-title">Notepad</p>
+            <p class="desc"  data-i18n="tile-note-desc">Quick notes that are still here when you come back.</p>
+          </a>
+        </nav>
+      </section>
 
-      <a class="tile" href="tools/unit-converter.html">
-        <div class="icon" aria-hidden="true">📏</div>
-        <p class="title" data-i18n="tile-unit-title">Unit Converter</p>
-        <p class="desc"  data-i18n="tile-unit-desc">Inches, pounds, cups, miles, Celsius — all in one spot.</p>
-      </a>
+      <!-- ── Safety & Privacy ── -->
+      <section class="tool-section" data-section="safety">
+        <h2 class="section-heading">🛡️ <span data-i18n="cat-safety">Safety &amp; Privacy</span></h2>
+        <nav aria-label="Safety and privacy tools" class="tile-grid">
+          <a class="tile" href="tools/password-generator.html" data-keywords="password generate strong random secure login account">
+            <div class="icon" aria-hidden="true">🔐</div>
+            <p class="title" data-i18n="tile-pwd-title">Password Generator</p>
+            <p class="desc"  data-i18n="tile-pwd-desc">Make a strong password you can actually use.</p>
+          </a>
+          <a class="tile" href="tools/scam-checker.html" data-keywords="scam link check suspicious phishing fraud safe url website">
+            <div class="icon" aria-hidden="true">🔎</div>
+            <p class="title" data-i18n="tile-scam-title">Scam Link Checker</p>
+            <p class="desc"  data-i18n="tile-scam-desc">Paste a link to check if it looks suspicious.</p>
+          </a>
+        </nav>
+      </section>
 
-      <a class="tile" href="tools/currency-converter.html">
-        <div class="icon" aria-hidden="true">💱</div>
-        <p class="title" data-i18n="tile-curr-title">Currency Converter</p>
-        <p class="desc"  data-i18n="tile-curr-desc">Look up today's rate between any two currencies.</p>
-      </a>
+    </div><!-- #toolSections -->
 
-      <a class="tile" href="tools/qr-maker.html">
-        <div class="icon" aria-hidden="true">🔳</div>
-        <p class="title" data-i18n="tile-qr-title">QR Code Maker</p>
-        <p class="desc"  data-i18n="tile-qr-desc">Make a QR code for a website, Wi-Fi, or any text.</p>
-      </a>
-
-      <a class="tile" href="tools/photo-resizer.html">
-        <div class="icon" aria-hidden="true">📷</div>
-        <p class="title" data-i18n="tile-photo-title">Photo Resizer</p>
-        <p class="desc"  data-i18n="tile-photo-desc">Shrink a big photo so it fits in an email.</p>
-      </a>
-    </nav>
+    <div id="emptyState" class="empty-state hidden" role="status" aria-live="polite">
+      <p data-i18n="search-empty">Nothing matched — try different words.</p>
+    </div>
   </main>
 
   <script src="assets/js/i18n.js"></script>
   <script src="assets/js/shared.js"></script>
+  <script src="assets/js/search.js"></script>
 </body>
 </html>
