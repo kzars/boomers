@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Big Text Reader — Easy Tools</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+<style>
+  .reader {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px clamp(20px, 4vw, 56px);
+    min-height: 220px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .reader.dark {
+    background: #1F2A37;
+    color: #F8FAFC;
+    border-color: #1F2A37;
+  }
+  .reader.cream {
+    background: #FFF6E0;
+    color: #1F2A37;
+    border-color: #F1DFA0;
+  }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1>Big Text Reader</h1>
+    <p class="subtitle">Paste any text and read it in a comfortable, large size.</p>
+
+    <section class="panel step" data-step="1">
+      <h2>Paste your text</h2>
+      <textarea id="src" placeholder="Paste an article, email, or anything else here…"></textarea>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2>Reading settings</h2>
+      <div class="row">
+        <div>
+          <label for="size">Text size: <span id="sizeLabel">48</span> px</label>
+          <input type="range" id="size" min="28" max="96" step="2" value="48" />
+        </div>
+        <div>
+          <label for="theme">Background</label>
+          <select id="theme">
+            <option value="light">Light (default)</option>
+            <option value="cream">Cream paper</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="readBtn">🔊 Read it aloud</button>
+        <button class="btn btn-secondary" id="stopBtn" disabled>⏹ Stop reading</button>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="3">
+      <h2>Read</h2>
+      <div class="reader" id="reader" aria-live="polite">Your text will appear here.</div>
+    </section>
+  </main>
+
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    const src = document.getElementById("src");
+    const size = document.getElementById("size");
+    const sizeLabel = document.getElementById("sizeLabel");
+    const theme = document.getElementById("theme");
+    const reader = document.getElementById("reader");
+    const readBtn = document.getElementById("readBtn");
+    const stopBtn = document.getElementById("stopBtn");
+
+    function syncReader() {
+      const txt = src.value;
+      reader.textContent = txt || "Your text will appear here.";
+    }
+    function syncSize() {
+      reader.style.fontSize = size.value + "px";
+      sizeLabel.textContent = size.value;
+    }
+    function syncTheme() {
+      reader.classList.remove("dark", "cream");
+      if (theme.value === "dark") reader.classList.add("dark");
+      if (theme.value === "cream") reader.classList.add("cream");
+    }
+    src.addEventListener("input", syncReader);
+    size.addEventListener("input", syncSize);
+    theme.addEventListener("change", syncTheme);
+    syncSize(); syncTheme();
+
+    const synth = window.speechSynthesis;
+    readBtn.addEventListener("click", () => {
+      if (!synth) return;
+      const txt = (src.value || "").trim();
+      if (!txt) return;
+      synth.cancel();
+      const u = new SpeechSynthesisUtterance(txt);
+      u.rate = 1;
+      u.onend = () => stopBtn.disabled = true;
+      synth.speak(u);
+      stopBtn.disabled = false;
+    });
+    stopBtn.addEventListener("click", () => { synth && synth.cancel(); stopBtn.disabled = true; });
+    window.addEventListener("pagehide", () => synth && synth.cancel());
+  </script>
+</body>
+</html>

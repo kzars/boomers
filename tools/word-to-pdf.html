@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Word or Text → PDF — Easy Tools</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1>Word or Text → PDF</h1>
+    <p class="subtitle">Make a clean PDF from a Word document or any text you paste.</p>
+
+    <section class="panel step" data-step="1">
+      <h2>Pick what you want to turn into a PDF</h2>
+      <div class="btn-row" role="tablist" aria-label="Source type">
+        <button class="btn btn-primary" id="modeFile" role="tab" aria-selected="true">📎 Use a Word file</button>
+        <button class="btn btn-secondary" id="modeText" role="tab" aria-selected="false">✏️ Type or paste text</button>
+      </div>
+
+      <div id="filePane" style="margin-top:18px">
+        <div class="dropzone" tabindex="0" role="button" aria-label="Choose a Word document">
+          <div class="big">Drop a .docx file here</div>
+          <div class="small">…or click to choose one from your computer</div>
+          <input type="file" id="fileInput" accept=".docx" />
+        </div>
+        <p class="muted" id="fileChosen" style="margin-top:12px"></p>
+      </div>
+
+      <div id="textPane" class="hidden" style="margin-top:18px">
+        <label for="textInput">Your text</label>
+        <textarea id="textInput" placeholder="Type or paste your text here…"></textarea>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2>Give your PDF a name</h2>
+      <label for="pdfName">File name</label>
+      <input type="text" id="pdfName" value="my-document" />
+    </section>
+
+    <section class="panel step" data-step="3">
+      <h2>Make the PDF</h2>
+      <button class="btn btn-primary btn-block" id="goBtn">📄 Make PDF</button>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    const modeFileBtn = document.getElementById("modeFile");
+    const modeTextBtn = document.getElementById("modeText");
+    const filePane = document.getElementById("filePane");
+    const textPane = document.getElementById("textPane");
+    const fileInput = document.getElementById("fileInput");
+    const fileChosen = document.getElementById("fileChosen");
+    const textInput = document.getElementById("textInput");
+    const pdfName = document.getElementById("pdfName");
+    const goBtn = document.getElementById("goBtn");
+    const banner = document.getElementById("banner");
+
+    let mode = "file";
+    let chosenFile = null;
+
+    function setMode(m) {
+      mode = m;
+      const useFile = m === "file";
+      modeFileBtn.className = "btn " + (useFile ? "btn-primary" : "btn-secondary");
+      modeTextBtn.className = "btn " + (useFile ? "btn-secondary" : "btn-primary");
+      modeFileBtn.setAttribute("aria-selected", useFile);
+      modeTextBtn.setAttribute("aria-selected", !useFile);
+      filePane.classList.toggle("hidden", !useFile);
+      textPane.classList.toggle("hidden", useFile);
+    }
+    modeFileBtn.addEventListener("click", () => setMode("file"));
+    modeTextBtn.addEventListener("click", () => setMode("text"));
+
+    fileInput.addEventListener("change", () => {
+      chosenFile = fileInput.files[0] || null;
+      fileChosen.textContent = chosenFile ? "Chosen: " + chosenFile.name : "";
+    });
+
+    function wrapText(text, font, size, maxWidth, doc) {
+      return doc.splitTextToSize(text, maxWidth);
+    }
+
+    async function getText() {
+      if (mode === "text") {
+        return (textInput.value || "").trim();
+      }
+      if (!chosenFile) throw new Error("Please choose a Word (.docx) file first.");
+      const buf = await chosenFile.arrayBuffer();
+      const result = await window.mammoth.extractRawText({ arrayBuffer: buf });
+      return (result.value || "").trim();
+    }
+
+    function makePdfFromText(text, name) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const margin = 54; // 0.75"
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const usableWidth = pageWidth - margin * 2;
+      const lineHeight = 18;
+      doc.setFont("times", "normal");
+      doc.setFontSize(12);
+
+      const paragraphs = text.split(/\n+/);
+      let y = margin;
+
+      for (const para of paragraphs) {
+        const lines = doc.splitTextToSize(para || " ", usableWidth);
+        for (const line of lines) {
+          if (y + lineHeight > pageHeight - margin) {
+            doc.addPage();
+            y = margin;
+          }
+          doc.text(line, margin, y);
+          y += lineHeight;
+        }
+        y += lineHeight * 0.4; // small gap between paragraphs
+      }
+
+      const filename = (name || "document").replace(/\.pdf$/i, "") + ".pdf";
+      doc.save(filename);
+    }
+
+    goBtn.addEventListener("click", async () => {
+      Helpers.clearBanner(banner);
+      goBtn.disabled = true;
+      goBtn.textContent = "Working…";
+      try {
+        const text = await getText();
+        if (!text) throw new Error("There's no text to put in the PDF.");
+        makePdfFromText(text, pdfName.value || "my-document");
+        Helpers.banner(banner, "success", "Done! Your PDF should be downloading now.");
+      } catch (err) {
+        Helpers.banner(banner, "error", err.message || "Something went wrong. Please try again.");
+      } finally {
+        goBtn.disabled = false;
+        goBtn.textContent = "📄 Make PDF";
+      }
+    });
+  </script>
+</body>
+</html>

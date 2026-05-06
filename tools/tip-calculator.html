@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tip & Bill Splitter — Easy Tools</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+<style>
+  .tip-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .tip-buttons .btn { padding: 14px 18px; min-height: 56px; min-width: 80px; }
+  .tip-buttons .btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .tip-buttons .btn { background: var(--surface); color: var(--ink); border: 2px solid var(--border-strong); }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1>Tip &amp; Bill Splitter</h1>
+    <p class="subtitle">Quick tip math, with the bill split fairly among everyone.</p>
+
+    <section class="panel step" data-step="1">
+      <h2>How much was the bill?</h2>
+      <label for="bill">Bill total ($)</label>
+      <input type="number" id="bill" min="0" step="0.01" inputmode="decimal" placeholder="0.00" />
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2>How much tip?</h2>
+      <div class="tip-buttons" id="tipBtns">
+        <button class="btn" data-tip="10">10%</button>
+        <button class="btn" data-tip="15">15%</button>
+        <button class="btn active" data-tip="18">18%</button>
+        <button class="btn" data-tip="20">20%</button>
+        <button class="btn" data-tip="25">25%</button>
+      </div>
+      <div style="margin-top:14px">
+        <label for="customTip">Or type a custom %</label>
+        <input type="number" id="customTip" min="0" max="100" step="0.5" inputmode="decimal" placeholder="e.g. 22" />
+      </div>
+    </section>
+
+    <section class="panel step" data-step="3">
+      <h2>How many people are paying?</h2>
+      <label for="people">Number of people</label>
+      <input type="number" id="people" min="1" step="1" value="1" inputmode="numeric" />
+    </section>
+
+    <section class="panel">
+      <p class="result-label">Tip amount</p>
+      <p class="big-result" id="tipOut">$0.00</p>
+      <p class="result-label">Total bill (with tip)</p>
+      <p class="big-result" id="totalOut">$0.00</p>
+      <p class="result-label">Each person pays</p>
+      <p class="big-result" id="eachOut">$0.00</p>
+    </section>
+  </main>
+
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    const bill = document.getElementById("bill");
+    const customTip = document.getElementById("customTip");
+    const people = document.getElementById("people");
+    const tipBtns = document.getElementById("tipBtns");
+    const tipOut = document.getElementById("tipOut");
+    const totalOut = document.getElementById("totalOut");
+    const eachOut = document.getElementById("eachOut");
+
+    let tipPct = 18;
+    function fmt(n) {
+      return "$" + (Math.round(n * 100) / 100).toFixed(2);
+    }
+    function calc() {
+      const b = parseFloat(bill.value) || 0;
+      const p = Math.max(1, parseInt(people.value, 10) || 1);
+      const tip = b * (tipPct / 100);
+      const total = b + tip;
+      tipOut.textContent = fmt(tip);
+      totalOut.textContent = fmt(total);
+      eachOut.textContent = fmt(total / p);
+    }
+
+    tipBtns.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-tip]");
+      if (!btn) return;
+      tipBtns.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      tipPct = parseFloat(btn.dataset.tip);
+      customTip.value = "";
+      calc();
+    });
+    customTip.addEventListener("input", () => {
+      const v = parseFloat(customTip.value);
+      if (!Number.isNaN(v) && v >= 0) {
+        tipPct = v;
+        tipBtns.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
+      }
+      calc();
+    });
+    [bill, people].forEach(el => el.addEventListener("input", calc));
+    calc();
+  </script>
+</body>
+</html>

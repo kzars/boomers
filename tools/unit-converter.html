@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Unit Converter — Easy Tools</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1>Unit Converter</h1>
+    <p class="subtitle">Inches, miles, pounds, cups, Fahrenheit — convert anything to anything.</p>
+
+    <section class="panel step" data-step="1">
+      <h2>What kind of measurement?</h2>
+      <label for="category">Category</label>
+      <select id="category">
+        <option value="length">Length / Distance</option>
+        <option value="weight">Weight</option>
+        <option value="temperature">Temperature</option>
+        <option value="volume">Volume / Cooking</option>
+        <option value="area">Area</option>
+        <option value="speed">Speed</option>
+      </select>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2>Pick the units</h2>
+      <div class="row">
+        <div>
+          <label for="from">From</label>
+          <select id="from"></select>
+        </div>
+        <div>
+          <label for="to">To</label>
+          <select id="to"></select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="swap">⇄ Swap</button>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="3">
+      <h2>Type the amount</h2>
+      <label for="amount">Amount</label>
+      <input type="number" id="amount" step="any" inputmode="decimal" value="1" />
+    </section>
+
+    <section class="panel">
+      <p class="result-label" id="resultLabel">Result</p>
+      <p class="big-result" id="result">—</p>
+    </section>
+  </main>
+
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    /* All converters convert via a base unit per category.
+       Linear units use a multiplier to base; temperature uses functions. */
+    const UNITS = {
+      length: {
+        base: "meter",
+        units: {
+          millimeter: { label: "millimeters (mm)", to: 0.001 },
+          centimeter: { label: "centimeters (cm)", to: 0.01 },
+          meter:      { label: "meters (m)",       to: 1 },
+          kilometer:  { label: "kilometers (km)",  to: 1000 },
+          inch:       { label: "inches (in)",      to: 0.0254 },
+          foot:       { label: "feet (ft)",        to: 0.3048 },
+          yard:       { label: "yards (yd)",       to: 0.9144 },
+          mile:       { label: "miles (mi)",       to: 1609.344 },
+        },
+        defaultFrom: "inch", defaultTo: "centimeter",
+      },
+      weight: {
+        base: "kilogram",
+        units: {
+          milligram: { label: "milligrams (mg)", to: 0.000001 },
+          gram:      { label: "grams (g)",        to: 0.001 },
+          kilogram:  { label: "kilograms (kg)",   to: 1 },
+          ounce:     { label: "ounces (oz)",      to: 0.028349523125 },
+          pound:     { label: "pounds (lb)",      to: 0.45359237 },
+          ton_us:    { label: "US tons",          to: 907.18474 },
+        },
+        defaultFrom: "pound", defaultTo: "kilogram",
+      },
+      temperature: {
+        units: {
+          celsius:    { label: "Celsius (°C)" },
+          fahrenheit: { label: "Fahrenheit (°F)" },
+          kelvin:     { label: "Kelvin (K)" },
+        },
+        defaultFrom: "fahrenheit", defaultTo: "celsius",
+        convert(v, from, to) {
+          let c;
+          if (from === "celsius") c = v;
+          else if (from === "fahrenheit") c = (v - 32) * 5 / 9;
+          else if (from === "kelvin") c = v - 273.15;
+          if (to === "celsius") return c;
+          if (to === "fahrenheit") return c * 9 / 5 + 32;
+          if (to === "kelvin") return c + 273.15;
+        },
+      },
+      volume: {
+        base: "liter",
+        units: {
+          milliliter:  { label: "milliliters (ml)",  to: 0.001 },
+          liter:       { label: "liters (l)",         to: 1 },
+          teaspoon_us: { label: "teaspoons (US tsp)", to: 0.00492892 },
+          tablespoon_us: { label: "tablespoons (US tbsp)", to: 0.0147868 },
+          fluid_oz_us: { label: "fluid ounces (US fl oz)", to: 0.0295735 },
+          cup_us:      { label: "cups (US)",          to: 0.236588 },
+          pint_us:     { label: "pints (US)",         to: 0.473176 },
+          quart_us:    { label: "quarts (US)",        to: 0.946353 },
+          gallon_us:   { label: "gallons (US)",       to: 3.78541 },
+        },
+        defaultFrom: "cup_us", defaultTo: "milliliter",
+      },
+      area: {
+        base: "square_meter",
+        units: {
+          square_meter: { label: "square meters (m²)", to: 1 },
+          square_foot:  { label: "square feet (ft²)", to: 0.092903 },
+          square_yard:  { label: "square yards (yd²)", to: 0.836127 },
+          acre:         { label: "acres",            to: 4046.86 },
+          hectare:      { label: "hectares (ha)",    to: 10000 },
+          square_mile:  { label: "square miles (mi²)", to: 2589988.11 },
+        },
+        defaultFrom: "square_foot", defaultTo: "square_meter",
+      },
+      speed: {
+        base: "mps",
+        units: {
+          mps:    { label: "meters/second (m/s)",     to: 1 },
+          kph:    { label: "kilometers/hour (km/h)",  to: 1 / 3.6 },
+          mph:    { label: "miles/hour (mph)",        to: 0.44704 },
+          knot:   { label: "knots",                   to: 0.514444 },
+        },
+        defaultFrom: "mph", defaultTo: "kph",
+      },
+    };
+
+    const category = document.getElementById("category");
+    const fromSel = document.getElementById("from");
+    const toSel = document.getElementById("to");
+    const amount = document.getElementById("amount");
+    const result = document.getElementById("result");
+    const resultLabel = document.getElementById("resultLabel");
+    const swapBtn = document.getElementById("swap");
+
+    function populateUnits() {
+      const c = UNITS[category.value];
+      fromSel.innerHTML = "";
+      toSel.innerHTML = "";
+      Object.entries(c.units).forEach(([key, { label }]) => {
+        for (const sel of [fromSel, toSel]) {
+          const opt = document.createElement("option");
+          opt.value = key;
+          opt.textContent = label;
+          sel.appendChild(opt);
+        }
+      });
+      fromSel.value = c.defaultFrom;
+      toSel.value = c.defaultTo;
+      calc();
+    }
+
+    function calc() {
+      const c = UNITS[category.value];
+      const v = parseFloat(amount.value);
+      if (Number.isNaN(v)) { result.textContent = "—"; return; }
+      let out;
+      if (c.convert) {
+        out = c.convert(v, fromSel.value, toSel.value);
+      } else {
+        const inBase = v * c.units[fromSel.value].to;
+        out = inBase / c.units[toSel.value].to;
+      }
+      const rounded = Math.abs(out) >= 1000
+        ? out.toLocaleString(undefined, { maximumFractionDigits: 2 })
+        : out.toLocaleString(undefined, { maximumSignificantDigits: 6 });
+      result.textContent = rounded;
+      resultLabel.textContent = c.units[fromSel.value].label + " → " + c.units[toSel.value].label;
+    }
+
+    swapBtn.addEventListener("click", () => {
+      const a = fromSel.value, b = toSel.value;
+      fromSel.value = b; toSel.value = a;
+      calc();
+    });
+    category.addEventListener("change", populateUnits);
+    [fromSel, toSel, amount].forEach(el => el.addEventListener("input", calc));
+    populateUnits();
+  </script>
+</body>
+</html>

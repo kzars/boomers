@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Read Aloud — Easy Tools</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1>Read Aloud</h1>
+    <p class="subtitle">Paste any text and have your computer read it to you out loud.</p>
+
+    <section class="panel step" data-step="1">
+      <h2>Paste your text</h2>
+      <label for="text" class="muted">Type or paste anything — an article, an email, a story.</label>
+      <textarea id="text" placeholder="Paste here…"></textarea>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2>Settings</h2>
+      <div class="row">
+        <div>
+          <label for="voice">Voice</label>
+          <select id="voice"></select>
+        </div>
+        <div>
+          <label for="rate">Speed: <span id="rateLabel">Normal</span></label>
+          <input type="range" id="rate" min="0.5" max="1.6" step="0.1" value="1" />
+        </div>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="3">
+      <h2>Listen</h2>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="playBtn">▶ Play</button>
+        <button class="btn btn-secondary" id="pauseBtn" disabled>⏸ Pause</button>
+        <button class="btn btn-secondary" id="resumeBtn" disabled>⏵ Resume</button>
+        <button class="btn btn-danger" id="stopBtn" disabled>⏹ Stop</button>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    const synth = window.speechSynthesis;
+    const text = document.getElementById("text");
+    const voiceSel = document.getElementById("voice");
+    const rate = document.getElementById("rate");
+    const rateLabel = document.getElementById("rateLabel");
+    const playBtn = document.getElementById("playBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const resumeBtn = document.getElementById("resumeBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const banner = document.getElementById("banner");
+
+    if (!synth) {
+      Helpers.banner(banner, "error", "Sorry — your browser doesn't support reading aloud. Try Chrome, Edge, or Safari.");
+      [playBtn, pauseBtn, resumeBtn, stopBtn].forEach(b => b.disabled = true);
+    }
+
+    let voices = [];
+    function loadVoices() {
+      voices = synth.getVoices();
+      const englishFirst = voices
+        .map((v, i) => ({ v, i }))
+        .sort((a, b) => {
+          const ae = a.v.lang.toLowerCase().startsWith("en") ? 0 : 1;
+          const be = b.v.lang.toLowerCase().startsWith("en") ? 0 : 1;
+          return ae - be || a.i - b.i;
+        });
+      voiceSel.innerHTML = "";
+      englishFirst.forEach(({ v, i }) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = v.name + "  (" + v.lang + ")";
+        voiceSel.appendChild(opt);
+      });
+    }
+    if (synth) {
+      loadVoices();
+      synth.onvoiceschanged = loadVoices;
+    }
+
+    rate.addEventListener("input", () => {
+      const r = parseFloat(rate.value);
+      rateLabel.textContent = r < 0.85 ? "Slower" : r > 1.15 ? "Faster" : "Normal";
+    });
+
+    function setPlayingUI(playing, paused) {
+      playBtn.disabled = playing && !paused;
+      pauseBtn.disabled = !playing || paused;
+      resumeBtn.disabled = !paused;
+      stopBtn.disabled = !playing;
+    }
+
+    playBtn.addEventListener("click", () => {
+      Helpers.clearBanner(banner);
+      const txt = (text.value || "").trim();
+      if (!txt) {
+        Helpers.banner(banner, "warn", "Please paste some text first.");
+        return;
+      }
+      synth.cancel();
+      const utt = new SpeechSynthesisUtterance(txt);
+      const i = parseInt(voiceSel.value, 10);
+      if (!Number.isNaN(i) && voices[i]) utt.voice = voices[i];
+      utt.rate = parseFloat(rate.value);
+      utt.onend = () => setPlayingUI(false, false);
+      utt.onerror = () => setPlayingUI(false, false);
+      synth.speak(utt);
+      setPlayingUI(true, false);
+    });
+    pauseBtn.addEventListener("click", () => { synth.pause(); setPlayingUI(true, true); });
+    resumeBtn.addEventListener("click", () => { synth.resume(); setPlayingUI(true, false); });
+    stopBtn.addEventListener("click", () => { synth.cancel(); setPlayingUI(false, false); });
+
+    // If user navigates away, stop speech
+    window.addEventListener("pagehide", () => synth && synth.cancel());
+  </script>
+</body>
+</html>

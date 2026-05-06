@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QR Code Maker — Easy Tools</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+<style>
+  .qr-wrap {
+    display: grid;
+    place-items: center;
+    padding: 24px 0;
+    background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border);
+  }
+  #qrcode { background: #fff; padding: 16px; border-radius: 12px; }
+  #qrcode canvas { display: block; }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1>QR Code Maker</h1>
+    <p class="subtitle">Make a QR code for a website, your Wi-Fi password, or any text.</p>
+
+    <section class="panel step" data-step="1">
+      <h2>What kind of QR code?</h2>
+      <div class="btn-row" role="tablist">
+        <button class="btn btn-primary" id="modeText" role="tab" aria-selected="true">📝 Text or web link</button>
+        <button class="btn btn-secondary" id="modeWifi" role="tab" aria-selected="false">📶 Wi-Fi</button>
+      </div>
+
+      <div id="paneText" style="margin-top:18px">
+        <label for="text">Text or web address (URL)</label>
+        <input type="text" id="text" placeholder="https://example.com" />
+      </div>
+
+      <div id="paneWifi" class="hidden" style="margin-top:18px">
+        <div class="row">
+          <div>
+            <label for="ssid">Network name (SSID)</label>
+            <input type="text" id="ssid" placeholder="MyHomeWiFi" />
+          </div>
+          <div>
+            <label for="encType">Security</label>
+            <select id="encType">
+              <option value="WPA">WPA / WPA2 / WPA3</option>
+              <option value="WEP">WEP</option>
+              <option value="nopass">No password</option>
+            </select>
+          </div>
+        </div>
+        <label for="pass" style="margin-top:14px">Password</label>
+        <input type="text" id="pass" placeholder="(leave empty if open network)" />
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2>Your QR code</h2>
+      <div class="qr-wrap">
+        <div id="qrcode"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="downloadBtn" disabled>⬇ Download PNG</button>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    const modeTextBtn = document.getElementById("modeText");
+    const modeWifiBtn = document.getElementById("modeWifi");
+    const paneText = document.getElementById("paneText");
+    const paneWifi = document.getElementById("paneWifi");
+    const text = document.getElementById("text");
+    const ssid = document.getElementById("ssid");
+    const pass = document.getElementById("pass");
+    const encType = document.getElementById("encType");
+    const qrcode = document.getElementById("qrcode");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const banner = document.getElementById("banner");
+
+    let mode = "text";
+    function setMode(m) {
+      mode = m;
+      const t = m === "text";
+      modeTextBtn.className = "btn " + (t ? "btn-primary" : "btn-secondary");
+      modeWifiBtn.className = "btn " + (t ? "btn-secondary" : "btn-primary");
+      modeTextBtn.setAttribute("aria-selected", t);
+      modeWifiBtn.setAttribute("aria-selected", !t);
+      paneText.classList.toggle("hidden", !t);
+      paneWifi.classList.toggle("hidden", t);
+      render();
+    }
+    modeTextBtn.addEventListener("click", () => setMode("text"));
+    modeWifiBtn.addEventListener("click", () => setMode("wifi"));
+
+    function escapeWifi(s) {
+      return (s || "").replace(/([\\;,:"])/g, "\\$1");
+    }
+    function payload() {
+      if (mode === "text") return text.value || "";
+      const t = encType.value;
+      if (!ssid.value) return "";
+      const auth = t === "nopass" ? "nopass" : t;
+      const p = t === "nopass" ? "" : escapeWifi(pass.value);
+      return `WIFI:T:${auth};S:${escapeWifi(ssid.value)};P:${p};;`;
+    }
+
+    let lastDataUrl = null;
+    async function render() {
+      Helpers.clearBanner(banner);
+      const data = payload();
+      qrcode.innerHTML = "";
+      if (!data) { downloadBtn.disabled = true; return; }
+      try {
+        const canvas = document.createElement("canvas");
+        await QRCode.toCanvas(canvas, data, {
+          width: 320,
+          margin: 2,
+          color: { dark: "#1F2A37", light: "#FFFFFF" },
+          errorCorrectionLevel: "M",
+        });
+        qrcode.appendChild(canvas);
+        lastDataUrl = canvas.toDataURL("image/png");
+        downloadBtn.disabled = false;
+      } catch (err) {
+        Helpers.banner(banner, "error", "Couldn't make a QR code from that. Try shorter text.");
+        downloadBtn.disabled = true;
+      }
+    }
+
+    [text, ssid, pass, encType].forEach(el => el.addEventListener("input", render));
+    encType.addEventListener("change", render);
+
+    downloadBtn.addEventListener("click", () => {
+      if (!lastDataUrl) return;
+      const a = document.createElement("a");
+      a.href = lastDataUrl;
+      a.download = "qr-code.png";
+      a.click();
+    });
+
+    text.value = "https://example.com";
+    render();
+  </script>
+</body>
+</html>
