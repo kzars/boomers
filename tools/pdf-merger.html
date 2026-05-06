@@ -8,26 +8,26 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="back-link" href="../index.html">← Back to all tools</a>
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
   </header>
 
   <main class="container">
-    <h1>Merge PDFs</h1>
-    <p class="subtitle">Glue several PDFs together into one tidy file.</p>
+    <h1 data-i18n="tile-merge-title">Merge PDFs</h1>
+    <p class="subtitle" data-i18n="mrg-subtitle">Glue several PDFs together into one tidy file.</p>
 
     <section class="panel step" data-step="1">
-      <h2>Add your PDFs</h2>
+      <h2 data-i18n="step-add-pdfs">Add your PDFs</h2>
       <div class="dropzone" tabindex="0" role="button" aria-label="Add PDFs">
-        <div class="big">Drop PDF files here</div>
-        <div class="small">…or click to choose them from your computer</div>
+        <div class="big" data-i18n="drop-pdfs-big">Drop PDF files here</div>
+        <div class="small" data-i18n="drop-pdfs-small">…or click to choose them from your computer</div>
         <input type="file" id="fileInput" accept="application/pdf" multiple />
       </div>
       <ul class="file-list" id="list"></ul>
     </section>
 
     <section class="panel step" data-step="2">
-      <h2>Name and merge</h2>
-      <label for="pdfName">File name</label>
+      <h2 data-i18n="step-name-merge">Name and merge</h2>
+      <label for="pdfName" data-i18n="label-file-name">File name</label>
       <input type="text" id="pdfName" value="merged" />
       <div class="btn-row">
         <button class="btn btn-primary btn-block" id="goBtn" disabled>📚 Merge PDFs</button>
@@ -37,75 +37,81 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/shared.js"></script>
   <script>
-    const fileInput = document.getElementById("fileInput");
-    const list = document.getElementById("list");
-    const goBtn = document.getElementById("goBtn");
-    const banner = document.getElementById("banner");
-
-    /** @type {File[]} */
-    let files = [];
+    var fileInput = document.getElementById("fileInput");
+    var list = document.getElementById("list");
+    var goBtn = document.getElementById("goBtn");
+    var banner = document.getElementById("banner");
+    var files = [];
 
     function render() {
       list.innerHTML = "";
-      files.forEach((f, i) => {
-        const li = document.createElement("li");
-        const name = document.createElement("span");
+      files.forEach(function(f, i) {
+        var li = document.createElement("li");
+        var name = document.createElement("span");
         name.className = "name";
         name.textContent = (i + 1) + ". " + f.name + "  (" + Helpers.formatBytes(f.size) + ")";
-        const up = document.createElement("button");
-        up.className = "icon-btn"; up.textContent = "↑"; up.title = "Move up";
-        up.disabled = i === 0;
-        up.addEventListener("click", () => { [files[i], files[i-1]] = [files[i-1], files[i]]; render(); });
-        const down = document.createElement("button");
-        down.className = "icon-btn"; down.textContent = "↓"; down.title = "Move down";
-        down.disabled = i === files.length - 1;
-        down.addEventListener("click", () => { [files[i], files[i+1]] = [files[i+1], files[i]]; render(); });
-        const del = document.createElement("button");
+        var up = document.createElement("button");
+        up.className = "icon-btn"; up.textContent = "↑"; up.title = "Move up"; up.disabled = i === 0;
+        up.addEventListener("click", function() { var tmp = files[i]; files[i] = files[i-1]; files[i-1] = tmp; render(); });
+        var down = document.createElement("button");
+        down.className = "icon-btn"; down.textContent = "↓"; down.title = "Move down"; down.disabled = i === files.length - 1;
+        down.addEventListener("click", function() { var tmp = files[i]; files[i] = files[i+1]; files[i+1] = tmp; render(); });
+        var del = document.createElement("button");
         del.className = "icon-btn danger"; del.textContent = "✕"; del.title = "Remove";
-        del.addEventListener("click", () => { files.splice(i, 1); render(); });
+        del.addEventListener("click", function() { files.splice(i, 1); render(); });
         li.append(name, up, down, del);
         list.appendChild(li);
       });
-      goBtn.disabled = files.length < 2;
-      goBtn.textContent = files.length < 2
-        ? "📚 Add at least 2 PDFs"
-        : "📚 Merge " + files.length + " PDFs";
+      if (files.length < 2) {
+        goBtn.disabled = true;
+        goBtn.textContent = "📚 Merge PDFs";
+      } else {
+        goBtn.disabled = false;
+        goBtn.textContent = "📚 Merge " + files.length + " PDFs";
+      }
     }
 
-    fileInput.addEventListener("change", () => {
-      const incoming = Array.from(fileInput.files || []).filter(f => f.type === "application/pdf" || /\.pdf$/i.test(f.name));
-      for (const f of incoming) files.push(f);
+    fileInput.addEventListener("change", function() {
+      var incoming = Array.prototype.filter.call(fileInput.files || [], function(f) {
+        return f.type === "application/pdf" || /\.pdf$/i.test(f.name);
+      });
+      incoming.forEach(function(f) { files.push(f); });
       fileInput.value = "";
       render();
     });
 
-    goBtn.addEventListener("click", async () => {
+    goBtn.addEventListener("click", function() {
       Helpers.clearBanner(banner);
       goBtn.disabled = true;
-      const oldText = goBtn.textContent;
-      goBtn.textContent = "Working…";
-      try {
-        const { PDFDocument } = window.PDFLib;
-        const out = await PDFDocument.create();
-        for (const f of files) {
-          const buf = await f.arrayBuffer();
-          const src = await PDFDocument.load(buf, { ignoreEncryption: true });
-          const pages = await out.copyPages(src, src.getPageIndices());
-          pages.forEach(p => out.addPage(p));
-        }
-        const bytes = await out.save();
-        const blob = new Blob([bytes], { type: "application/pdf" });
-        const name = (document.getElementById("pdfName").value || "merged").replace(/\.pdf$/i, "");
+      goBtn.textContent = window.I18N.t("btn-working");
+      var PDFDocument = window.PDFLib.PDFDocument;
+      PDFDocument.create().then(function(out) {
+        var chain = Promise.resolve();
+        files.forEach(function(f) {
+          chain = chain.then(function() {
+            return f.arrayBuffer().then(function(buf) {
+              return PDFDocument.load(buf, { ignoreEncryption: true });
+            }).then(function(src) {
+              return out.copyPages(src, src.getPageIndices()).then(function(pages) {
+                pages.forEach(function(p) { out.addPage(p); });
+              });
+            });
+          });
+        });
+        return chain.then(function() { return out.save(); });
+      }).then(function(bytes) {
+        var blob = new Blob([bytes], { type: "application/pdf" });
+        var name = (document.getElementById("pdfName").value || "merged").replace(/\.pdf$/i, "");
         Helpers.download(blob, name + ".pdf");
-        Helpers.banner(banner, "success", "Done! Your merged PDF should be downloading now.");
-      } catch (err) {
+        Helpers.banner(banner, "success", "✓ Done! Your merged PDF should be downloading now.");
+      }).catch(function(err) {
         Helpers.banner(banner, "error", "Couldn't merge: " + (err.message || "unknown error"));
-      } finally {
-        goBtn.disabled = false;
-        goBtn.textContent = oldText;
-      }
+      }).finally(function() {
+        render(); // restores button text with count
+      });
     });
   </script>
 </body>

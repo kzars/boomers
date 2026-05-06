@@ -8,160 +8,146 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="back-link" href="../index.html">← Back to all tools</a>
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
   </header>
 
   <main class="container">
-    <h1>Photos → PDF</h1>
-    <p class="subtitle">Combine your photos into one PDF, in the order you choose.</p>
+    <h1 data-i18n="tile-img-title">Photos → PDF</h1>
+    <p class="subtitle" data-i18n="i2p-subtitle">Combine your photos into one PDF, in the order you choose.</p>
 
     <section class="panel step" data-step="1">
-      <h2>Add your photos</h2>
+      <h2 data-i18n="step-add-photos">Add your photos</h2>
       <div class="dropzone" tabindex="0" role="button" aria-label="Add photos">
-        <div class="big">Drop photos here</div>
-        <div class="small">…or click to pick photos from your computer (you can pick more than one)</div>
+        <div class="big" data-i18n="drop-photos-big">Drop photos here</div>
+        <div class="small" data-i18n="drop-photos-small">…or click to pick photos from your computer (you can pick more than one)</div>
         <input type="file" id="fileInput" accept="image/*" multiple />
       </div>
       <ul class="file-list" id="list"></ul>
     </section>
 
     <section class="panel step" data-step="2">
-      <h2>Page settings</h2>
+      <h2 data-i18n="step-page-settings">Page settings</h2>
       <div class="row">
         <div>
-          <label for="pageSize">Paper size</label>
+          <label for="pageSize" data-i18n="label-paper">Paper size</label>
           <select id="pageSize">
             <option value="letter">US Letter</option>
             <option value="a4">A4</option>
           </select>
         </div>
         <div>
-          <label for="orient">Orientation</label>
+          <label for="orient" data-i18n="label-orient">Orientation</label>
           <select id="orient">
-            <option value="p">Tall (portrait)</option>
-            <option value="l">Wide (landscape)</option>
+            <option value="p" data-i18n="opt-portrait">Tall (portrait)</option>
+            <option value="l" data-i18n="opt-landscape">Wide (landscape)</option>
           </select>
         </div>
         <div>
-          <label for="pdfName">File name</label>
+          <label for="pdfName" data-i18n="label-file-name">File name</label>
           <input type="text" id="pdfName" value="my-photos" />
         </div>
       </div>
     </section>
 
     <section class="panel step" data-step="3">
-      <h2>Make the PDF</h2>
-      <button class="btn btn-primary btn-block" id="goBtn" disabled>📄 Make PDF</button>
+      <h2 data-i18n="step-make-pdf">Make the PDF</h2>
+      <button class="btn btn-primary btn-block" id="goBtn" disabled data-i18n="btn-make-pdf">📄 Make PDF</button>
       <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
     </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/shared.js"></script>
   <script>
-    const fileInput = document.getElementById("fileInput");
-    const list = document.getElementById("list");
-    const goBtn = document.getElementById("goBtn");
-    const banner = document.getElementById("banner");
-
-    /** @type {{file: File, url: string}[]} */
-    let items = [];
+    var fileInput = document.getElementById("fileInput");
+    var list = document.getElementById("list");
+    var goBtn = document.getElementById("goBtn");
+    var banner = document.getElementById("banner");
+    var items = [];
 
     function render() {
       list.innerHTML = "";
-      items.forEach((it, i) => {
-        const li = document.createElement("li");
-        const img = document.createElement("img");
-        img.className = "thumb";
-        img.alt = "";
-        img.src = it.url;
-        const name = document.createElement("span");
+      items.forEach(function(it, i) {
+        var li = document.createElement("li");
+        var img = document.createElement("img");
+        img.className = "thumb"; img.alt = ""; img.src = it.url;
+        var name = document.createElement("span");
         name.className = "name";
         name.textContent = (i + 1) + ". " + it.file.name;
-        const up = document.createElement("button");
-        up.className = "icon-btn";
-        up.title = "Move up";
-        up.textContent = "↑";
-        up.disabled = i === 0;
-        up.addEventListener("click", () => { swap(i, i - 1); });
-        const down = document.createElement("button");
-        down.className = "icon-btn";
-        down.title = "Move down";
-        down.textContent = "↓";
-        down.disabled = i === items.length - 1;
-        down.addEventListener("click", () => { swap(i, i + 1); });
-        const del = document.createElement("button");
-        del.className = "icon-btn danger";
-        del.title = "Remove";
-        del.textContent = "✕";
-        del.addEventListener("click", () => { remove(i); });
+        var up = document.createElement("button");
+        up.className = "icon-btn"; up.title = "↑"; up.textContent = "↑"; up.disabled = i === 0;
+        up.addEventListener("click", function() { swap(i, i - 1); });
+        var down = document.createElement("button");
+        down.className = "icon-btn"; down.title = "↓"; down.textContent = "↓"; down.disabled = i === items.length - 1;
+        down.addEventListener("click", function() { swap(i, i + 1); });
+        var del = document.createElement("button");
+        del.className = "icon-btn danger"; del.title = "✕"; del.textContent = "✕";
+        del.addEventListener("click", function() { remove(i); });
         li.append(img, name, up, down, del);
         list.appendChild(li);
       });
       goBtn.disabled = items.length === 0;
     }
-    function swap(a, b) {
-      [items[a], items[b]] = [items[b], items[a]];
-      render();
-    }
-    function remove(i) {
-      URL.revokeObjectURL(items[i].url);
-      items.splice(i, 1);
-      render();
-    }
+    function swap(a, b) { var tmp = items[a]; items[a] = items[b]; items[b] = tmp; render(); }
+    function remove(i) { URL.revokeObjectURL(items[i].url); items.splice(i, 1); render(); }
 
-    fileInput.addEventListener("change", () => {
-      const files = Array.from(fileInput.files || []).filter(f => f.type.startsWith("image/"));
-      for (const f of files) items.push({ file: f, url: URL.createObjectURL(f) });
+    fileInput.addEventListener("change", function() {
+      var files = Array.prototype.filter.call(fileInput.files || [], function(f) { return f.type.startsWith("image/"); });
+      files.forEach(function(f) { items.push({ file: f, url: URL.createObjectURL(f) }); });
       fileInput.value = "";
       render();
     });
 
     function loadImage(src) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
+      return new Promise(function(resolve, reject) {
+        var img = new Image();
+        img.onload = function() { resolve(img); };
         img.onerror = reject;
         img.src = src;
       });
     }
 
-    goBtn.addEventListener("click", async () => {
+    goBtn.addEventListener("click", function() {
       Helpers.clearBanner(banner);
       goBtn.disabled = true;
-      goBtn.textContent = "Working…";
-      try {
-        const { jsPDF } = window.jspdf;
-        const orient = document.getElementById("orient").value;
-        const fmt = document.getElementById("pageSize").value;
-        const doc = new jsPDF({ unit: "pt", format: fmt, orientation: orient });
-        const pw = doc.internal.pageSize.getWidth();
-        const ph = doc.internal.pageSize.getHeight();
-        const margin = 24;
+      goBtn.textContent = window.I18N.t("btn-working");
+      var jsPDF = window.jspdf.jsPDF;
+      var orient = document.getElementById("orient").value;
+      var fmt = document.getElementById("pageSize").value;
+      var doc = new jsPDF({ unit: "pt", format: fmt, orientation: orient });
+      var pw = doc.internal.pageSize.getWidth();
+      var ph = doc.internal.pageSize.getHeight();
+      var margin = 24;
 
-        for (let i = 0; i < items.length; i++) {
-          if (i > 0) doc.addPage();
-          const img = await loadImage(items[i].url);
-          const maxW = pw - margin * 2;
-          const maxH = ph - margin * 2;
-          const ratio = Math.min(maxW / img.width, maxH / img.height);
-          const w = img.width * ratio;
-          const h = img.height * ratio;
-          const x = (pw - w) / 2;
-          const y = (ph - h) / 2;
-          // Use jsPDF's own URL-based add
-          const fmtType = (items[i].file.type === "image/png") ? "PNG" : "JPEG";
-          doc.addImage(img, fmtType, x, y, w, h);
-        }
-        const name = (document.getElementById("pdfName").value || "my-photos").replace(/\.pdf$/i, "");
+      var chain = Promise.resolve();
+      items.forEach(function(it, i) {
+        chain = chain.then(function() {
+          return loadImage(it.url).then(function(img) {
+            if (i > 0) doc.addPage();
+            var maxW = pw - margin * 2;
+            var maxH = ph - margin * 2;
+            var ratio = Math.min(maxW / img.width, maxH / img.height);
+            var w = img.width * ratio;
+            var h = img.height * ratio;
+            var x = (pw - w) / 2;
+            var y = (ph - h) / 2;
+            var fmtType = (it.file.type === "image/png") ? "PNG" : "JPEG";
+            doc.addImage(img, fmtType, x, y, w, h);
+          });
+        });
+      });
+
+      chain.then(function() {
+        var name = (document.getElementById("pdfName").value || "my-photos").replace(/\.pdf$/i, "");
         doc.save(name + ".pdf");
-        Helpers.banner(banner, "success", "Done! Your PDF should be downloading now.");
-      } catch (err) {
+        Helpers.banner(banner, "success", "✓ Done! Your PDF should be downloading now.");
+      }).catch(function(err) {
         Helpers.banner(banner, "error", err.message || "Something went wrong. Please try again.");
-      } finally {
+      }).finally(function() {
         goBtn.disabled = items.length === 0;
-        goBtn.textContent = "📄 Make PDF";
-      }
+        goBtn.textContent = window.I18N.t("btn-make-pdf");
+      });
     });
   </script>
 </body>

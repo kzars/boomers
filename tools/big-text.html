@@ -16,78 +16,68 @@
     white-space: pre-wrap;
     word-wrap: break-word;
   }
-  .reader.dark {
-    background: #1F2A37;
-    color: #F8FAFC;
-    border-color: #1F2A37;
-  }
-  .reader.cream {
-    background: #FFF6E0;
-    color: #1F2A37;
-    border-color: #F1DFA0;
-  }
+  .reader.dark  { background: #1F2A37; color: #F8FAFC; border-color: #1F2A37; }
+  .reader.cream { background: #FFF6E0; color: #1F2A37; border-color: #F1DFA0; }
 </style>
 </head>
 <body>
   <header class="site-header">
-    <a class="back-link" href="../index.html">← Back to all tools</a>
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
   </header>
 
   <main class="container">
-    <h1>Big Text Reader</h1>
-    <p class="subtitle">Paste any text and read it in a comfortable, large size.</p>
+    <h1 data-i18n="tile-big-title">Big Text Reader</h1>
+    <p class="subtitle" data-i18n="bgt-subtitle">Paste any text and read it in a comfortable, large size.</p>
 
     <section class="panel step" data-step="1">
-      <h2>Paste your text</h2>
-      <textarea id="src" placeholder="Paste an article, email, or anything else here…"></textarea>
+      <h2 data-i18n="step-paste-text">Paste your text</h2>
+      <textarea id="src" data-i18n-ph="ph-paste-here" placeholder="Paste an article, email, or anything else here…"></textarea>
     </section>
 
     <section class="panel step" data-step="2">
-      <h2>Reading settings</h2>
+      <h2 data-i18n="step-read-settings">Reading settings</h2>
       <div class="row">
         <div>
-          <label for="size">Text size: <span id="sizeLabel">48</span> px</label>
+          <label for="size"><span data-i18n="label-text-size">Text size</span>: <span id="sizeLabel">48</span> px</label>
           <input type="range" id="size" min="28" max="96" step="2" value="48" />
         </div>
         <div>
-          <label for="theme">Background</label>
+          <label for="theme" data-i18n="label-bg">Background</label>
           <select id="theme">
-            <option value="light">Light (default)</option>
-            <option value="cream">Cream paper</option>
-            <option value="dark">Dark</option>
+            <option value="light" data-i18n="opt-light">Light (default)</option>
+            <option value="cream" data-i18n="opt-cream">Cream paper</option>
+            <option value="dark"  data-i18n="opt-dark">Dark</option>
           </select>
         </div>
       </div>
       <div class="btn-row">
-        <button class="btn btn-secondary" id="readBtn">🔊 Read it aloud</button>
-        <button class="btn btn-secondary" id="stopBtn" disabled>⏹ Stop reading</button>
+        <button class="btn btn-secondary" id="readBtn" data-i18n="btn-read-aloud">🔊 Read it aloud</button>
+        <button class="btn btn-secondary" id="stopBtn" disabled data-i18n="btn-stop-reading">⏹ Stop reading</button>
       </div>
     </section>
 
     <section class="panel step" data-step="3">
-      <h2>Read</h2>
-      <div class="reader" id="reader" aria-live="polite">Your text will appear here.</div>
+      <h2 data-i18n="step-read">Read</h2>
+      <div class="reader" id="reader" aria-live="polite"></div>
     </section>
   </main>
 
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/shared.js"></script>
   <script>
-    const src = document.getElementById("src");
-    const size = document.getElementById("size");
-    const sizeLabel = document.getElementById("sizeLabel");
-    const theme = document.getElementById("theme");
-    const reader = document.getElementById("reader");
-    const readBtn = document.getElementById("readBtn");
-    const stopBtn = document.getElementById("stopBtn");
+    var src = document.getElementById("src");
+    var size = document.getElementById("size");
+    var sizeLabel = document.getElementById("sizeLabel");
+    var theme = document.getElementById("theme");
+    var reader = document.getElementById("reader");
+    var readBtn = document.getElementById("readBtn");
+    var stopBtn = document.getElementById("stopBtn");
 
+    function ph() { return window.T && window.T['reader-ph'] || 'Your text will appear here.'; }
     function syncReader() {
-      const txt = src.value;
-      reader.textContent = txt || "Your text will appear here.";
+      reader.textContent = src.value || ph();
     }
-    function syncSize() {
-      reader.style.fontSize = size.value + "px";
-      sizeLabel.textContent = size.value;
-    }
+    function syncSize() { reader.style.fontSize = size.value + "px"; sizeLabel.textContent = size.value; }
     function syncTheme() {
       reader.classList.remove("dark", "cream");
       if (theme.value === "dark") reader.classList.add("dark");
@@ -97,21 +87,27 @@
     size.addEventListener("input", syncSize);
     theme.addEventListener("change", syncTheme);
     syncSize(); syncTheme();
+    reader.textContent = ph();
 
-    const synth = window.speechSynthesis;
-    readBtn.addEventListener("click", () => {
+    // Re-sync reader placeholder text after i18n applies
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!src.value) reader.textContent = ph();
+    });
+
+    var synth = window.speechSynthesis;
+    readBtn.addEventListener("click", function() {
       if (!synth) return;
-      const txt = (src.value || "").trim();
+      var txt = (src.value || "").trim();
       if (!txt) return;
       synth.cancel();
-      const u = new SpeechSynthesisUtterance(txt);
+      var u = new SpeechSynthesisUtterance(txt);
       u.rate = 1;
-      u.onend = () => stopBtn.disabled = true;
+      u.onend = function() { stopBtn.disabled = true; };
       synth.speak(u);
       stopBtn.disabled = false;
     });
-    stopBtn.addEventListener("click", () => { synth && synth.cancel(); stopBtn.disabled = true; });
-    window.addEventListener("pagehide", () => synth && synth.cancel());
+    stopBtn.addEventListener("click", function() { synth && synth.cancel(); stopBtn.disabled = true; });
+    window.addEventListener("pagehide", function() { synth && synth.cancel(); });
   </script>
 </body>
 </html>

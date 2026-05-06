@@ -8,177 +8,149 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="back-link" href="../index.html">← Back to all tools</a>
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
   </header>
 
   <main class="container">
-    <h1>Currency Converter</h1>
-    <p class="subtitle">Today's rate between any two currencies. Updates automatically.</p>
+    <h1 data-i18n="tile-curr-title">Currency Converter</h1>
+    <p class="subtitle" data-i18n="cur-subtitle">Today's rate between any two currencies. Updates automatically.</p>
 
     <section class="panel step" data-step="1">
-      <h2>How much, in which currency?</h2>
+      <h2 data-i18n="step-how-much">How much, in which currency?</h2>
       <div class="row">
         <div>
-          <label for="amount">Amount</label>
+          <label for="amount" data-i18n="label-amount">Amount</label>
           <input type="number" id="amount" step="any" inputmode="decimal" value="100" />
         </div>
         <div>
-          <label for="from">From</label>
+          <label for="from" data-i18n="label-from">From</label>
           <select id="from"></select>
         </div>
       </div>
     </section>
 
     <section class="panel step" data-step="2">
-      <h2>Convert to which currency?</h2>
+      <h2 data-i18n="step-convert-to">Convert to which currency?</h2>
       <div class="row">
         <div>
-          <label for="to">To</label>
+          <label for="to" data-i18n="label-to">To</label>
           <select id="to"></select>
         </div>
         <div>
-          <button class="btn btn-secondary btn-block" id="swap" style="margin-top:32px">⇄ Swap</button>
+          <button class="btn btn-secondary btn-block" id="swap" style="margin-top:32px" data-i18n="btn-swap">⇄ Swap</button>
         </div>
       </div>
     </section>
 
     <section class="panel">
-      <p class="result-label" id="resultLabel">Result</p>
+      <p class="result-label" id="resultLabel" data-i18n="result-label">Result</p>
       <p class="big-result" id="result">—</p>
-      <p class="muted center" id="rateInfo">Loading today's rate…</p>
+      <p class="muted center" id="rateInfo" data-i18n="rate-loading">Loading today's rate…</p>
       <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
     </section>
   </main>
 
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/shared.js"></script>
   <script>
-    /* Friendly subset of common currencies */
-    const CURRENCIES = [
-      ["USD", "US Dollar"],
-      ["EUR", "Euro"],
-      ["GBP", "British Pound"],
-      ["CAD", "Canadian Dollar"],
-      ["AUD", "Australian Dollar"],
-      ["JPY", "Japanese Yen"],
-      ["CNY", "Chinese Yuan"],
-      ["INR", "Indian Rupee"],
-      ["MXN", "Mexican Peso"],
-      ["CHF", "Swiss Franc"],
-      ["SEK", "Swedish Krona"],
-      ["NOK", "Norwegian Krone"],
-      ["DKK", "Danish Krone"],
-      ["NZD", "New Zealand Dollar"],
-      ["SGD", "Singapore Dollar"],
-      ["HKD", "Hong Kong Dollar"],
-      ["KRW", "South Korean Won"],
-      ["BRL", "Brazilian Real"],
-      ["ZAR", "South African Rand"],
-      ["TRY", "Turkish Lira"],
-      ["PLN", "Polish Złoty"],
-      ["ILS", "Israeli Shekel"],
-      ["AED", "UAE Dirham"],
-      ["SAR", "Saudi Riyal"],
-      ["THB", "Thai Baht"],
-      ["PHP", "Philippine Peso"],
-      ["IDR", "Indonesian Rupiah"],
-      ["MYR", "Malaysian Ringgit"],
+    var CURRENCIES = [
+      ["USD","US Dollar"],["EUR","Euro"],["GBP","British Pound"],
+      ["CAD","Canadian Dollar"],["AUD","Australian Dollar"],["JPY","Japanese Yen"],
+      ["CNY","Chinese Yuan"],["INR","Indian Rupee"],["MXN","Mexican Peso"],
+      ["CHF","Swiss Franc"],["SEK","Swedish Krona"],["NOK","Norwegian Krone"],
+      ["DKK","Danish Krone"],["NZD","New Zealand Dollar"],["SGD","Singapore Dollar"],
+      ["HKD","Hong Kong Dollar"],["KRW","South Korean Won"],["BRL","Brazilian Real"],
+      ["ZAR","South African Rand"],["TRY","Turkish Lira"],["PLN","Polish Złoty"],
+      ["ILS","Israeli Shekel"],["AED","UAE Dirham"],["SAR","Saudi Riyal"],
+      ["THB","Thai Baht"],["PHP","Philippine Peso"],["IDR","Indonesian Rupiah"],
+      ["MYR","Malaysian Ringgit"],["EUR","Euro"],["LVL","Latvian Lats (historical)"],
     ];
 
-    const fromSel = document.getElementById("from");
-    const toSel = document.getElementById("to");
-    const amount = document.getElementById("amount");
-    const result = document.getElementById("result");
-    const resultLabel = document.getElementById("resultLabel");
-    const rateInfo = document.getElementById("rateInfo");
-    const banner = document.getElementById("banner");
-    const swapBtn = document.getElementById("swap");
+    var fromSel = document.getElementById("from");
+    var toSel = document.getElementById("to");
+    var amount = document.getElementById("amount");
+    var result = document.getElementById("result");
+    var resultLabel = document.getElementById("resultLabel");
+    var rateInfo = document.getElementById("rateInfo");
+    var banner = document.getElementById("banner");
+    var swapBtn = document.getElementById("swap");
 
-    CURRENCIES.forEach(([code, name]) => {
-      for (const sel of [fromSel, toSel]) {
-        const opt = document.createElement("option");
-        opt.value = code;
-        opt.textContent = code + " — " + name;
+    // Build currency selects (deduplicate)
+    var seen = {};
+    CURRENCIES.forEach(function(c) {
+      if (seen[c[0]]) return; seen[c[0]] = true;
+      [fromSel, toSel].forEach(function(sel) {
+        var opt = document.createElement("option");
+        opt.value = c[0];
+        opt.textContent = c[0] + " — " + c[1];
         sel.appendChild(opt);
-      }
+      });
     });
     fromSel.value = "USD";
     toSel.value = "EUR";
 
-    let lastRates = null; // { base, rates: {CODE: number}, date }
+    var lastRates = null;
 
-    async function fetchRates(base) {
-      // Primary: open.er-api.com (no key); Fallback: exchangerate.host
-      const urls = [
-        `https://open.er-api.com/v6/latest/${base}`,
-        `https://api.exchangerate.host/latest?base=${base}`,
+    function fetchRates(base) {
+      var urls = [
+        "https://open.er-api.com/v6/latest/" + base,
+        "https://api.exchangerate.host/latest?base=" + base,
       ];
-      let lastErr;
-      for (const url of urls) {
-        try {
-          const r = await fetch(url);
+      var idx = 0;
+      function tryNext() {
+        if (idx >= urls.length) return Promise.reject(new Error("Couldn't fetch rates."));
+        return fetch(urls[idx++]).then(function(r) {
           if (!r.ok) throw new Error("HTTP " + r.status);
-          const j = await r.json();
-          const rates = j.rates || j.conversion_rates;
-          if (rates && Object.keys(rates).length > 0) {
-            return {
-              base,
-              rates,
-              date: j.time_last_update_utc || j.date || new Date().toUTCString(),
-            };
-          }
-          throw new Error("No rates in response");
-        } catch (e) { lastErr = e; }
+          return r.json();
+        }).then(function(j) {
+          var rates = j.rates || j.conversion_rates;
+          if (!rates || !Object.keys(rates).length) throw new Error("No rates");
+          return { base: base, rates: rates, date: j.time_last_update_utc || j.date || new Date().toUTCString() };
+        }).catch(function() { return tryNext(); });
       }
-      throw lastErr || new Error("Couldn't fetch rates.");
+      return tryNext();
     }
 
-    async function ensureRates() {
-      const base = fromSel.value;
-      if (lastRates && lastRates.base === base) return lastRates;
+    function ensureRates() {
+      var base = fromSel.value;
+      if (lastRates && lastRates.base === base) return Promise.resolve(lastRates);
       Helpers.clearBanner(banner);
-      rateInfo.textContent = "Loading today's rate…";
-      try {
-        lastRates = await fetchRates(base);
-        rateInfo.textContent = "Rates updated " + lastRates.date;
-        return lastRates;
-      } catch (err) {
+      rateInfo.textContent = window.I18N.t("rate-loading");
+      return fetchRates(base).then(function(data) {
+        lastRates = data;
+        rateInfo.textContent = "Rates updated " + data.date;
+        return data;
+      }).catch(function(err) {
         Helpers.banner(banner, "error", "Couldn't get today's rate. Please check your internet, then try again.");
         rateInfo.textContent = "";
         throw err;
-      }
+      });
     }
 
     function fmtMoney(n, code) {
-      try {
-        return n.toLocaleString(undefined, { style: "currency", currency: code, maximumFractionDigits: 2 });
-      } catch {
-        return n.toFixed(2) + " " + code;
-      }
+      try { return n.toLocaleString(undefined, { style: "currency", currency: code, maximumFractionDigits: 2 }); }
+      catch(e) { return n.toFixed(2) + " " + code; }
     }
 
-    async function calc() {
-      const v = parseFloat(amount.value);
+    function calc() {
+      var v = parseFloat(amount.value);
       if (Number.isNaN(v)) { result.textContent = "—"; return; }
-      try {
-        const data = await ensureRates();
-        const rate = data.rates[toSel.value];
+      ensureRates().then(function(data) {
+        var rate = data.rates[toSel.value];
         if (!rate) { result.textContent = "—"; return; }
-        const out = v * rate;
-        result.textContent = fmtMoney(out, toSel.value);
+        result.textContent = fmtMoney(v * rate, toSel.value);
         resultLabel.textContent = fmtMoney(v, fromSel.value) + " is";
-      } catch {/* banner already shown */}
+      }).catch(function() {});
     }
 
-    fromSel.addEventListener("change", () => { lastRates = null; calc(); });
+    fromSel.addEventListener("change", function() { lastRates = null; calc(); });
     toSel.addEventListener("change", calc);
     amount.addEventListener("input", calc);
-    swapBtn.addEventListener("click", () => {
-      const a = fromSel.value, b = toSel.value;
+    swapBtn.addEventListener("click", function() {
+      var a = fromSel.value, b = toSel.value;
       fromSel.value = b; toSel.value = a;
-      lastRates = null;
-      calc();
+      lastRates = null; calc();
     });
-
     calc();
   </script>
 </body>

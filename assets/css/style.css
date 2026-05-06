@@ -451,6 +451,51 @@ input[type="range"] {
 .faq details[open] summary::before { content: "− "; }
 .faq p { margin: 8px 0 0; color: var(--ink-soft); }
 
+/* ---------- Language switcher ---------- */
+
+.lang-switcher {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.hero .lang-switcher {
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.lang-btn {
+  appearance: none;
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 48px;
+  line-height: 1;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  letter-spacing: 0.01em;
+}
+.lang-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+.lang-btn.active,
+.lang-btn[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.lang-btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }

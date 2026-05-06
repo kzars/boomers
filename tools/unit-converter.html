@@ -8,60 +8,59 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="back-link" href="../index.html">← Back to all tools</a>
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
   </header>
 
   <main class="container">
-    <h1>Unit Converter</h1>
-    <p class="subtitle">Inches, miles, pounds, cups, Fahrenheit — convert anything to anything.</p>
+    <h1 data-i18n="tile-unit-title">Unit Converter</h1>
+    <p class="subtitle" data-i18n="unt-subtitle">Inches, miles, pounds, cups, Fahrenheit — convert anything to anything.</p>
 
     <section class="panel step" data-step="1">
-      <h2>What kind of measurement?</h2>
-      <label for="category">Category</label>
+      <h2 data-i18n="step-what-meas">What kind of measurement?</h2>
+      <label for="category" data-i18n="label-category">Category</label>
       <select id="category">
-        <option value="length">Length / Distance</option>
-        <option value="weight">Weight</option>
-        <option value="temperature">Temperature</option>
-        <option value="volume">Volume / Cooking</option>
-        <option value="area">Area</option>
-        <option value="speed">Speed</option>
+        <option value="length"      data-i18n="cat-length">Length / Distance</option>
+        <option value="weight"      data-i18n="cat-weight">Weight</option>
+        <option value="temperature" data-i18n="cat-temperature">Temperature</option>
+        <option value="volume"      data-i18n="cat-volume">Volume / Cooking</option>
+        <option value="area"        data-i18n="cat-area">Area</option>
+        <option value="speed"       data-i18n="cat-speed">Speed</option>
       </select>
     </section>
 
     <section class="panel step" data-step="2">
-      <h2>Pick the units</h2>
+      <h2 data-i18n="step-pick-units">Pick the units</h2>
       <div class="row">
         <div>
-          <label for="from">From</label>
+          <label for="from" data-i18n="label-from">From</label>
           <select id="from"></select>
         </div>
         <div>
-          <label for="to">To</label>
+          <label for="to" data-i18n="label-to">To</label>
           <select id="to"></select>
         </div>
       </div>
       <div class="btn-row">
-        <button class="btn btn-secondary" id="swap">⇄ Swap</button>
+        <button class="btn btn-secondary" id="swap" data-i18n="btn-swap">⇄ Swap</button>
       </div>
     </section>
 
     <section class="panel step" data-step="3">
-      <h2>Type the amount</h2>
-      <label for="amount">Amount</label>
+      <h2 data-i18n="step-amount">Type the amount</h2>
+      <label for="amount" data-i18n="label-amount">Amount</label>
       <input type="number" id="amount" step="any" inputmode="decimal" value="1" />
     </section>
 
     <section class="panel">
-      <p class="result-label" id="resultLabel">Result</p>
+      <p class="result-label" id="resultLabel" data-i18n="result-label">Result</p>
       <p class="big-result" id="result">—</p>
     </section>
   </main>
 
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/shared.js"></script>
   <script>
-    /* All converters convert via a base unit per category.
-       Linear units use a multiplier to base; temperature uses functions. */
-    const UNITS = {
+    var UNITS = {
       length: {
         base: "meter",
         units: {
@@ -95,8 +94,8 @@
           kelvin:     { label: "Kelvin (K)" },
         },
         defaultFrom: "fahrenheit", defaultTo: "celsius",
-        convert(v, from, to) {
-          let c;
+        convert: function(v, from, to) {
+          var c;
           if (from === "celsius") c = v;
           else if (from === "fahrenheit") c = (v - 32) * 5 / 9;
           else if (from === "kelvin") c = v - 273.15;
@@ -108,59 +107,60 @@
       volume: {
         base: "liter",
         units: {
-          milliliter:  { label: "milliliters (ml)",  to: 0.001 },
-          liter:       { label: "liters (l)",         to: 1 },
-          teaspoon_us: { label: "teaspoons (US tsp)", to: 0.00492892 },
-          tablespoon_us: { label: "tablespoons (US tbsp)", to: 0.0147868 },
-          fluid_oz_us: { label: "fluid ounces (US fl oz)", to: 0.0295735 },
-          cup_us:      { label: "cups (US)",          to: 0.236588 },
-          pint_us:     { label: "pints (US)",         to: 0.473176 },
-          quart_us:    { label: "quarts (US)",        to: 0.946353 },
-          gallon_us:   { label: "gallons (US)",       to: 3.78541 },
+          milliliter:    { label: "milliliters (ml)",       to: 0.001 },
+          liter:         { label: "liters (l)",              to: 1 },
+          teaspoon_us:   { label: "teaspoons (US tsp)",     to: 0.00492892 },
+          tablespoon_us: { label: "tablespoons (US tbsp)",  to: 0.0147868 },
+          fluid_oz_us:   { label: "fluid ounces (US fl oz)", to: 0.0295735 },
+          cup_us:        { label: "cups (US)",              to: 0.236588 },
+          pint_us:       { label: "pints (US)",             to: 0.473176 },
+          quart_us:      { label: "quarts (US)",            to: 0.946353 },
+          gallon_us:     { label: "gallons (US)",           to: 3.78541 },
         },
         defaultFrom: "cup_us", defaultTo: "milliliter",
       },
       area: {
         base: "square_meter",
         units: {
-          square_meter: { label: "square meters (m²)", to: 1 },
-          square_foot:  { label: "square feet (ft²)", to: 0.092903 },
-          square_yard:  { label: "square yards (yd²)", to: 0.836127 },
-          acre:         { label: "acres",            to: 4046.86 },
-          hectare:      { label: "hectares (ha)",    to: 10000 },
-          square_mile:  { label: "square miles (mi²)", to: 2589988.11 },
+          square_meter: { label: "square meters (m²)",   to: 1 },
+          square_foot:  { label: "square feet (ft²)",   to: 0.092903 },
+          square_yard:  { label: "square yards (yd²)",  to: 0.836127 },
+          acre:         { label: "acres",               to: 4046.86 },
+          hectare:      { label: "hectares (ha)",       to: 10000 },
+          square_mile:  { label: "square miles (mi²)",  to: 2589988.11 },
         },
         defaultFrom: "square_foot", defaultTo: "square_meter",
       },
       speed: {
         base: "mps",
         units: {
-          mps:    { label: "meters/second (m/s)",     to: 1 },
-          kph:    { label: "kilometers/hour (km/h)",  to: 1 / 3.6 },
-          mph:    { label: "miles/hour (mph)",        to: 0.44704 },
-          knot:   { label: "knots",                   to: 0.514444 },
+          mps:  { label: "meters/second (m/s)",    to: 1 },
+          kph:  { label: "kilometers/hour (km/h)", to: 1 / 3.6 },
+          mph:  { label: "miles/hour (mph)",       to: 0.44704 },
+          knot: { label: "knots",                  to: 0.514444 },
         },
         defaultFrom: "mph", defaultTo: "kph",
       },
     };
 
-    const category = document.getElementById("category");
-    const fromSel = document.getElementById("from");
-    const toSel = document.getElementById("to");
-    const amount = document.getElementById("amount");
-    const result = document.getElementById("result");
-    const resultLabel = document.getElementById("resultLabel");
-    const swapBtn = document.getElementById("swap");
+    var category = document.getElementById("category");
+    var fromSel  = document.getElementById("from");
+    var toSel    = document.getElementById("to");
+    var amount   = document.getElementById("amount");
+    var result   = document.getElementById("result");
+    var resultLabel = document.getElementById("resultLabel");
+    var swapBtn  = document.getElementById("swap");
 
     function populateUnits() {
-      const c = UNITS[category.value];
+      var c = UNITS[category.value];
       fromSel.innerHTML = "";
       toSel.innerHTML = "";
-      Object.entries(c.units).forEach(([key, { label }]) => {
-        for (const sel of [fromSel, toSel]) {
-          const opt = document.createElement("option");
+      Object.keys(c.units).forEach(function(key) {
+        for (var i = 0; i < 2; i++) {
+          var sel = i === 0 ? fromSel : toSel;
+          var opt = document.createElement("option");
           opt.value = key;
-          opt.textContent = label;
+          opt.textContent = c.units[key].label;
           sel.appendChild(opt);
         }
       });
@@ -170,30 +170,30 @@
     }
 
     function calc() {
-      const c = UNITS[category.value];
-      const v = parseFloat(amount.value);
+      var c = UNITS[category.value];
+      var v = parseFloat(amount.value);
       if (Number.isNaN(v)) { result.textContent = "—"; return; }
-      let out;
+      var out;
       if (c.convert) {
         out = c.convert(v, fromSel.value, toSel.value);
       } else {
-        const inBase = v * c.units[fromSel.value].to;
+        var inBase = v * c.units[fromSel.value].to;
         out = inBase / c.units[toSel.value].to;
       }
-      const rounded = Math.abs(out) >= 1000
+      var rounded = Math.abs(out) >= 1000
         ? out.toLocaleString(undefined, { maximumFractionDigits: 2 })
         : out.toLocaleString(undefined, { maximumSignificantDigits: 6 });
       result.textContent = rounded;
       resultLabel.textContent = c.units[fromSel.value].label + " → " + c.units[toSel.value].label;
     }
 
-    swapBtn.addEventListener("click", () => {
-      const a = fromSel.value, b = toSel.value;
+    swapBtn.addEventListener("click", function() {
+      var a = fromSel.value, b = toSel.value;
       fromSel.value = b; toSel.value = a;
       calc();
     });
     category.addEventListener("change", populateUnits);
-    [fromSel, toSel, amount].forEach(el => el.addEventListener("input", calc));
+    [fromSel, toSel, amount].forEach(function(el) { el.addEventListener("input", calc); });
     populateUnits();
   </script>
 </body>

@@ -1,0 +1,711 @@
+/* ============================================================
+   Easy Tools — Internationalisation (EN / LV / LT / ET)
+   Auto-detects from browser language; persists to localStorage.
+   ============================================================ */
+
+(function () {
+
+/* ---- All translation strings ---- */
+var TR = {
+  en: {
+    /* Site-wide */
+    'back':              '← Back to all tools',
+    'badge':             'Free • No signup • Private',
+    'site-title':        'Easy Tools',
+    'site-subtitle':     'Simple things that just work — no fuss, no clutter.',
+    /* Hub tiles */
+    'tile-word-title':   'Word or Text → PDF',
+    'tile-word-desc':    'Turn a Word document or any text into a tidy PDF.',
+    'tile-img-title':    'Photos → PDF',
+    'tile-img-desc':     'Combine photos into one PDF — perfect for receipts.',
+    'tile-merge-title':  'Merge PDFs',
+    'tile-merge-desc':   'Glue several PDFs together into a single file.',
+    'tile-read-title':   'Read Aloud',
+    'tile-read-desc':    'Paste any text and have your computer read it to you.',
+    'tile-big-title':    'Big Text Reader',
+    'tile-big-desc':     'See any text in a nice, large, easy-to-read size.',
+    'tile-tip-title':    'Tip & Bill Splitter',
+    'tile-tip-desc':     'Calculate the tip and split the bill among friends.',
+    'tile-unit-title':   'Unit Converter',
+    'tile-unit-desc':    'Inches, pounds, cups, miles, Celsius — all in one spot.',
+    'tile-curr-title':   'Currency Converter',
+    'tile-curr-desc':    'Look up today’s rate between any two currencies.',
+    'tile-qr-title':     'QR Code Maker',
+    'tile-qr-desc':      'Make a QR code for a website, Wi-Fi, or any text.',
+    'tile-photo-title':  'Photo Resizer',
+    'tile-photo-desc':   'Shrink a big photo so it fits in an email.',
+    /* FAQ */
+    'faq-heading':   'Common questions',
+    'faq-q1': 'Is this safe? Where do my files go?',
+    'faq-a1': 'Everything happens right inside your web browser. Your files are not uploaded anywhere. When you close the page, they are gone.',
+    'faq-q2': 'Is it really free?',
+    'faq-a2': 'Yes. No accounts, no payments, no trial periods, and no ads.',
+    'faq-q3': 'Do I need to install anything?',
+    'faq-a3': 'No. Just click a tool above and start using it.',
+    'faq-q4': 'It isn’t working — what should I try?',
+    'faq-a4': 'Try refreshing the page. If you are using a very old browser, try Chrome, Edge, Firefox, or Safari from the last couple of years.',
+    'footer-credit': 'Made with care. ❤️',
+    /* Shared tool strings */
+    'step-pick-source': 'Pick what you want to turn into a PDF',
+    'btn-use-file':     '📎 Use a Word file',
+    'btn-use-text':     '✏️ Type or paste text',
+    'drop-docx-big':    'Drop a .docx file here',
+    'drop-docx-small':  '…or click to choose one from your computer',
+    'label-your-text':  'Your text',
+    'ph-paste-text':    'Type or paste your text here…',
+    'step-name-pdf':    'Give your PDF a name',
+    'label-file-name':  'File name',
+    'step-make-pdf':    'Make the PDF',
+    'btn-make-pdf':     '📄 Make PDF',
+    'btn-working':      'Working…',
+    'step-add-photos':  'Add your photos',
+    'drop-photos-big':  'Drop photos here',
+    'drop-photos-small':'…or click to pick photos from your computer (you can pick more than one)',
+    'step-page-settings': 'Page settings',
+    'label-paper':      'Paper size',
+    'label-orient':     'Orientation',
+    'opt-portrait':     'Tall (portrait)',
+    'opt-landscape':    'Wide (landscape)',
+    'step-add-pdfs':    'Add your PDFs',
+    'drop-pdfs-big':    'Drop PDF files here',
+    'drop-pdfs-small':  '…or click to choose them from your computer',
+    'step-name-merge':  'Name and merge',
+    'step-paste-text':  'Paste your text',
+    'step-paste-note':  'Type or paste anything — an article, an email, a story.',
+    'ph-paste-here':    'Paste here…',
+    'step-settings':    'Settings',
+    'label-voice':      'Voice',
+    'label-speed':      'Speed',
+    'speed-slower':     'Slower',
+    'speed-normal':     'Normal',
+    'speed-faster':     'Faster',
+    'step-listen':      'Listen',
+    'btn-play':         '▶ Play',
+    'btn-pause':        '⏸ Pause',
+    'btn-resume':       '⏵ Resume',
+    'btn-stop':         '⏹ Stop',
+    'step-read-settings': 'Reading settings',
+    'label-text-size':  'Text size',
+    'label-bg':         'Background',
+    'opt-light':        'Light (default)',
+    'opt-cream':        'Cream paper',
+    'opt-dark':         'Dark',
+    'btn-read-aloud':   '🔊 Read it aloud',
+    'btn-stop-reading': '⏹ Stop reading',
+    'step-read':        'Read',
+    'reader-ph':        'Your text will appear here.',
+    'step-bill':        'How much was the bill?',
+    'label-bill':       'Bill total ($)',
+    'step-tip':         'How much tip?',
+    'label-custom-tip': 'Or type a custom %',
+    'ph-custom-tip':    'e.g. 22',
+    'step-people':      'How many people are paying?',
+    'label-people':     'Number of people',
+    'result-tip':       'Tip amount',
+    'result-total':     'Total bill (with tip)',
+    'result-each':      'Each person pays',
+    'step-what-meas':   'What kind of measurement?',
+    'label-category':   'Category',
+    'cat-length':       'Length / Distance',
+    'cat-weight':       'Weight',
+    'cat-temperature':  'Temperature',
+    'cat-volume':       'Volume / Cooking',
+    'cat-area':         'Area',
+    'cat-speed':        'Speed',
+    'step-pick-units':  'Pick the units',
+    'label-from':       'From',
+    'label-to':         'To',
+    'btn-swap':         '⇄ Swap',
+    'step-amount':      'Type the amount',
+    'label-amount':     'Amount',
+    'result-label':     'Result',
+    'step-how-much':    'How much, in which currency?',
+    'step-convert-to':  'Convert to which currency?',
+    'rate-loading':     'Loading today’s rate…',
+    'step-qr-type':     'What kind of QR code?',
+    'btn-qr-text':      '📝 Text or web link',
+    'btn-qr-wifi':      '📶 Wi-Fi',
+    'label-text-url':   'Text or web address (URL)',
+    'label-ssid':       'Network name (SSID)',
+    'label-security':   'Security',
+    'label-wifi-pass':  'Password',
+    'ph-wifi-pass':     '(leave empty if open network)',
+    'step-qr-result':   'Your QR code',
+    'btn-dl-qr':        '⬇ Download PNG',
+    'step-add-photo':   'Add your photo',
+    'drop-photo-big':   'Drop a photo here',
+    'drop-photo-small': '…or click to choose one (JPEG, PNG, or WebP)',
+    'step-pick-size':   'Pick the new size',
+    'label-max-dim':    'Longest side',
+    'label-quality':    'Quality',
+    'resize-tip':       'Tip: 1200–1600 px and 70–80% quality is usually plenty for emailing.',
+    'step-compare':     'Compare and download',
+    'before':           'Before',
+    'after':            'After',
+    'btn-dl-photo':     '⬇ Download smaller photo',
+    /* Word→PDF subtitles */
+    'w2p-subtitle':   'Make a clean PDF from a Word document or any text you paste.',
+    /* image→PDF */
+    'i2p-subtitle':   'Combine your photos into one PDF, in the order you choose.',
+    /* pdf merger */
+    'mrg-subtitle':   'Glue several PDFs together into one tidy file.',
+    /* read aloud */
+    'ral-subtitle':   'Paste any text and have your computer read it to you out loud.',
+    /* big text */
+    'bgt-subtitle':   'Paste any text and read it in a comfortable, large size.',
+    /* tip */
+    'tip-subtitle':   'Quick tip math, with the bill split fairly among everyone.',
+    /* unit */
+    'unt-subtitle':   'Inches, miles, pounds, cups, Fahrenheit — convert anything to anything.',
+    /* currency */
+    'cur-subtitle':   'Today’s rate between any two currencies. Updates automatically.',
+    /* qr */
+    'qr-subtitle':    'Make a QR code for a website, your Wi-Fi password, or any text.',
+    /* photo */
+    'pht-subtitle':   'Shrink a big photo so it fits in an email — usually under 1 MB.',
+  },
+
+  /* ---- Latvian ---- */
+  lv: {
+    'back':              '← Atpakaļ uz visiem rīkiem',
+    'badge':             'Bezmaksās • Bez reģistrācijas • Privāts',
+    'site-title':        'Vienkāršie rīki',
+    'site-subtitle':     'Vienkāršas lietas, kas vienkārši darbojas — bez sarēģījumiem.',
+    'tile-word-title':   'Word vai teksts → PDF',
+    'tile-word-desc':    'Pārvērtiet Word dokumentu vai jebkuru tekstu par PDF.',
+    'tile-img-title':    'Fotogrāfijas → PDF',
+    'tile-img-desc':     'Apvienojiet fotogrāfijas vienā PDF — lielski čekiem.',
+    'tile-merge-title':  'Apvienot PDF failus',
+    'tile-merge-desc':   'Salīmējiet vairākus PDF failus vienā.',
+    'tile-read-title':   'Lasīt skaļī',
+    'tile-read-desc':    'Ielīmējiet tekstu un ļaujiet datoram to nolasīt.',
+    'tile-big-title':    'Lielā teksta lasītājs',
+    'tile-big-desc':     'Skatiet jebkuru tekstu lielā, viegli lasāmā izmērā.',
+    'tile-tip-title':    'Dzeramnaudas kalkulators',
+    'tile-tip-desc':     'Aprēķiniet dzeramnaudu un sadalīiet rēķinu.',
+    'tile-unit-title':   'Mērvienību pārveidotājs',
+    'tile-unit-desc':    'Collas, mārciņas, kausi, jūdzes, Celsijs — viss vienā vietā.',
+    'tile-curr-title':   'Valūtas pārveidotājs',
+    'tile-curr-desc':    'Skatiet šodienas valūtas kursu starp jebkurām divām valūtām.',
+    'tile-qr-title':     'QR koda veidotājs',
+    'tile-qr-desc':      'Izveidojiet QR kodu vietnei, Wi-Fi vai jebkuram tekstam.',
+    'tile-photo-title':  'Fotogrāfiju izmēra mainīšana',
+    'tile-photo-desc':   'Samaziniet lielu fotogrāfiju, lai tā ietilptu e-pastā.',
+    'faq-heading':   'Biežāk uzd. jautājumi',
+    'faq-q1': 'Vai tas ir droši? Kur nonkāk mani faili?',
+    'faq-a1': 'Viss notiek tiesīi jūsu pārlūkprogrammā. Faili nekur netiek augšupielādēti. Aizverot lapu, tie pazūd.',
+    'faq-q2': 'Vai tas tiešām ir bezmaksās?',
+    'faq-a2': 'Jā. Bez kontiem, maksājumiem, izmēģinājuma periodiem un reklamām.',
+    'faq-q3': 'Vai man kaut kas jāinstalē?',
+    'faq-a3': 'Nē. Vienkārši noklikšķiniet uz rīka un sāciet lietot.',
+    'faq-q4': 'Tas nedarbojas — ko man izmēģināt?',
+    'faq-a4': 'Mēģiniet atsvaidzināt lapu. Ja izmantojat oti vecu pārlūku, izmantojiet Chrome, Edge, Firefox vai Safari.',
+    'footer-credit': 'Veidots ar rūpēm. ❤️',
+    'step-pick-source': 'Izvēlieties, ko vēlaties pārvērst PDF formatā',
+    'btn-use-file':     '📎 Izmantot Word failu',
+    'btn-use-text':     '✏️ Ierakstīt vai ielīmēt tekstu',
+    'drop-docx-big':    'Nometiet .docx failu šeit',
+    'drop-docx-small':  '…vai noklikšķiniet, lai izvēlētos failu no datora',
+    'label-your-text':  'Jūsu teksts',
+    'ph-paste-text':    'Ierakstiet vai ielīmējiet tekstu šeit…',
+    'step-name-pdf':    'Piešķiriet PDF nosaukumu',
+    'label-file-name':  'Faila nosaukums',
+    'step-make-pdf':    'Izveidot PDF',
+    'btn-make-pdf':     '📄 Izveidot PDF',
+    'btn-working':      'Strādā…',
+    'step-add-photos':  'Pievienojiet fotogrāfijas',
+    'drop-photos-big':  'Nometiet fotogrāfijas šeit',
+    'drop-photos-small':'…vai noklikšķiniet, lai izvēlētos (var izvēlēties vairāk)',
+    'step-page-settings': 'Lapas iestatījumi',
+    'label-paper':      'Papīra izmērs',
+    'label-orient':     'Orientācija',
+    'opt-portrait':     'Augsts (portreta)',
+    'opt-landscape':    'Plats (ainava)',
+    'step-add-pdfs':    'Pievienojiet savus PDF failus',
+    'drop-pdfs-big':    'Nometiet PDF failus šeit',
+    'drop-pdfs-small':  '…vai noklikšķiniet, lai izvēlētos no datora',
+    'step-name-merge':  'Nosaukums un apvienošana',
+    'step-paste-text':  'Ielīmējiet tekstu',
+    'step-paste-note':  'Ierakstiet vai ielīmējiet jebko — rakstu, e-pastu, stāstu.',
+    'ph-paste-here':    'Ielīmēt šeit…',
+    'step-settings':    'Iestatījumi',
+    'label-voice':      'Balss',
+    'label-speed':      'Ātrums',
+    'speed-slower':     'Lēnāk',
+    'speed-normal':     'Normalā',
+    'speed-faster':     'Ātrāk',
+    'step-listen':      'Klausieties',
+    'btn-play':         '▶ Sākt',
+    'btn-pause':        '⏸ Pauze',
+    'btn-resume':       '⏵ Turpināt',
+    'btn-stop':         '⏹ Stop',
+    'step-read-settings': 'Lasīšanas iestatījumi',
+    'label-text-size':  'Teksta lielums',
+    'label-bg':         'Fons',
+    'opt-light':        'Gaiss (pēc noklūjuma)',
+    'opt-cream':        'Krēma papīrs',
+    'opt-dark':         'Tumšs',
+    'btn-read-aloud':   '🔊 Lasīt skaļī',
+    'btn-stop-reading': '⏹ Apturēt lasīšanu',
+    'step-read':        'Lasīt',
+    'reader-ph':        'Jūsu teksts parādīsies šeit.',
+    'step-bill':        'Cik liels bija rēķins?',
+    'label-bill':       'Rēķina kopā ($)',
+    'step-tip':         'Cik liela dzeramnaudu?',
+    'label-custom-tip': 'Vai ievadiet pašu %',
+    'ph-custom-tip':    'piem., 22',
+    'step-people':      'Cik cilvēku maksā?',
+    'label-people':     'Cilvēku skaits',
+    'result-tip':       'Dzeramnaudas summa',
+    'result-total':     'Kopējais rēķins (ar dzeramnaudu)',
+    'result-each':      'Katrs maksā',
+    'step-what-meas':   'Kāds mērījums?',
+    'label-category':   'Kategorija',
+    'cat-length':       'Garums / Attālums',
+    'cat-weight':       'Svars',
+    'cat-temperature':  'Temperatūra',
+    'cat-volume':       'Tilpums / Gatavošana',
+    'cat-area':         'Laukums',
+    'cat-speed':        'Ātrums',
+    'step-pick-units':  'Izvēlieties vienības',
+    'label-from':       'No',
+    'label-to':         'Uz',
+    'btn-swap':         '⇄ Mainīt vietām',
+    'step-amount':      'Ievadiet daudzumu',
+    'label-amount':     'Daudzums',
+    'result-label':     'Rezultāts',
+    'step-how-much':    'Cik daudz, kurā valūtā?',
+    'step-convert-to':  'Pārvērst kurā valūtā?',
+    'rate-loading':     'Ielādē šodienas kursu…',
+    'step-qr-type':     'Kāds QR kods?',
+    'btn-qr-text':      '📝 Teksts vai saite',
+    'btn-qr-wifi':      '📶 Wi-Fi',
+    'label-text-url':   'Teksts vai mājas lapas adrese (URL)',
+    'label-ssid':       'Tīkla nosaukums (SSID)',
+    'label-security':   'Drošība',
+    'label-wifi-pass':  'Parole',
+    'ph-wifi-pass':     '(atstājiet tukšu, ja nav paroles)',
+    'step-qr-result':   'Jūsu QR kods',
+    'btn-dl-qr':        '⬇ Lejupielādēt PNG',
+    'step-add-photo':   'Pievienojiet fotogrāfiju',
+    'drop-photo-big':   'Nometiet fotogrāfiju šeit',
+    'drop-photo-small': '…vai noklikšķiniet, lai izvēlētos (JPEG, PNG vai WebP)',
+    'step-pick-size':   'Izvēlieties jauno izmēru',
+    'label-max-dim':    'Garākā mala',
+    'label-quality':    'Kvalitāte',
+    'resize-tip':       'Padoms: 1200–1600 px un 70–80% kvalitāte parasti ir pietiekami e-pastam.',
+    'step-compare':     'Salīzināt un lejupielādēt',
+    'before':           'Pirms',
+    'after':            'Pēc',
+    'btn-dl-photo':     '⬇ Lejupielādēt mazāku foto',
+    'w2p-subtitle':   'Izveidojiet PDF no Word dokumenta vai jebkura teksta.',
+    'i2p-subtitle':   'Apvienojiet savas fotogrāfijas vienā PDF jūsu izvēlētajā kārtībā.',
+    'mrg-subtitle':   'Salīmējiet vairākus PDF failus vienā sakoptā failā.',
+    'ral-subtitle':   'Ielīmējiet jebkuru tekstu un laimējiet datoram to nolasīt skaļi.',
+    'bgt-subtitle':   'Ielīmējiet jebkuru tekstu un lasīt to ērtā, lielā izmērā.',
+    'tip-subtitle':   'Ātrais dzeramnaudas aprēķins, ar rēķinu sadalīt taisnīgi.',
+    'unt-subtitle':   'Collas, jūdzes, mārciņas, kausi, Fahrenheits — konvertējiet visu.',
+    'cur-subtitle':   'Šīsdienas kurss starp jebkurām divām valūtām. Atjauninās automātiski.',
+    'qr-subtitle':    'Izveidojiet QR kodu vietnei, Wi-Fi paroli vai jebkuram tekstam.',
+    'pht-subtitle':   'Samaziniet lielu fotogrāfiju, lai tā ietilptu e-pastā — parasti līdz 1 MB.',
+  },
+
+  /* ---- Lithuanian ---- */
+  lt: {
+    'back':              '← Atgal į visus įrankius',
+    'badge':             'Nemokama • Be registracijos • Privatu',
+    'site-title':        'Paprasti įrankiai',
+    'site-subtitle':     'Paprasti dalykai, kurie tiesiog veikia — be jokio chaoso.',
+    'tile-word-title':   'Word arba tekstas → PDF',
+    'tile-word-desc':    'Paverskite Word dokumentą arba tekstą į PDF.',
+    'tile-img-title':    'Nuotraukos → PDF',
+    'tile-img-desc':     'Sujunkite nuotraukas į vieną PDF — puikiai tinka kvitams.',
+    'tile-merge-title':  'Sujungti PDF failus',
+    'tile-merge-desc':   'Sulipinkite kelis PDF failus į vieną.',
+    'tile-read-title':   'Skaityti garsiai',
+    'tile-read-desc':    'Įklijuokite tekstą ir leiskite kompiuteriui jį perskaityti.',
+    'tile-big-title':    'Didelio teksto skaitytuvas',
+    'tile-big-desc':     'Matykite bet kokį tekstą gražiu, dideliu, lengvai skaitomu formatu.',
+    'tile-tip-title':    'Arbatpinigių ir sąskaitos dalytuvas',
+    'tile-tip-desc':     'Apskaičiuokite arbatpinigius ir padalinkite sąskaitą.',
+    'tile-unit-title':   'Vieneto keitiklis',
+    'tile-unit-desc':    'Coliai, svarai, puodeliai, mylios, Celsijus — viskas vienoje vietoje.',
+    'tile-curr-title':   'Valiutos keitiklis',
+    'tile-curr-desc':    'Peržiūrėkite šiandienos kursą tarp bet kurių dviejų valiutų.',
+    'tile-qr-title':     'QR kodo kūrėjas',
+    'tile-qr-desc':      'Sukurkite QR kodą svetainei, Wi-Fi ar bet kokiam tekstui.',
+    'tile-photo-title':  'Nuotraukų dyžio keitiklis',
+    'tile-photo-desc':   'Sumažinkite didēlę nuotrauką, kad tilptų į el. laišką.',
+    'faq-heading':   'Dažni klausimai',
+    'faq-q1': 'Ar tai saugu? Kur keliauja mano failai?',
+    'faq-a1': 'Viskas vyksta jūsų naršyklėje. Failai nie kur nei keliami. Uždarius puslapį, jie dings.',
+    'faq-q2': 'Ar tai tikrai nemokama?',
+    'faq-a2': 'Taip. Jokių paskyrų, mokėjimų, bandymų laikotarpių ar reklamos.',
+    'faq-q3': 'Ar reikia ką nors įdiegti?',
+    'faq-a3': 'Ne. Tiesiog spustelėkite įrankius viršuje ir pradekit naudoti.',
+    'faq-q4': 'Neveikia — ką daryti?',
+    'faq-a4': 'Pabandykite atnaujinti puslapį. Jei naudojate seną naršyklę, išbandykite Chrome, Edge, Firefox ar Safari.',
+    'footer-credit': 'Sukurta su meile. ❤️',
+    'step-pick-source': 'Pasirinkite, ką norite paversti PDF',
+    'btn-use-file':     '📎 Naudoti Word failą',
+    'btn-use-text':     '✏️ Įvesti arba Įklijuoti tekstą',
+    'drop-docx-big':    'Nuvilkite .docx failą čia',
+    'drop-docx-small':  '…arba spustelėkite, kad pasirinktumėte failą',
+    'label-your-text':  'Jūsų tekstas',
+    'ph-paste-text':    'Įveskite arba Įklijuokite tekstą čia…',
+    'step-name-pdf':    'Suteikite PDF pavadinimą',
+    'label-file-name':  'Failo pavadinimas',
+    'step-make-pdf':    'Sukurti PDF',
+    'btn-make-pdf':     '📄 Sukurti PDF',
+    'btn-working':      'Dirba…',
+    'step-add-photos':  'Pridėkite nuotraukas',
+    'drop-photos-big':  'Nuvilkite nuotraukas čia',
+    'drop-photos-small':'…arba spustelėkite, kad pasirinktumėte (galima pasirinkti keletą)',
+    'step-page-settings': 'Puslapio nustatymai',
+    'label-paper':      'Popieriaus dydis',
+    'label-orient':     'Orientacija',
+    'opt-portrait':     'Aukštas (portretinis)',
+    'opt-landscape':    'Platus (peizažinis)',
+    'step-add-pdfs':    'Pridėkite PDF failus',
+    'drop-pdfs-big':    'Nuvilkite PDF failus čia',
+    'drop-pdfs-small':  '…arba spustelėkite, kad pasirinktumėte iš kompiuterio',
+    'step-name-merge':  'Pavadinimas ir sujungimas',
+    'step-paste-text':  'Įklijuokite savo tekstą',
+    'step-paste-note':  'Įveskite arba Įklijuokite ką nors — straipsnį, el. laišką, istoriją.',
+    'ph-paste-here':    'Įklijuokite čia…',
+    'step-settings':    'Nustatymai',
+    'label-voice':      'Balsas',
+    'label-speed':      'Greitis',
+    'speed-slower':     'Lėčiau',
+    'speed-normal':     'Normaliai',
+    'speed-faster':     'Greičiau',
+    'step-listen':      'Klausykite',
+    'btn-play':         '▶ Paleisti',
+    'btn-pause':        '⏸ Pauze',
+    'btn-resume':       '⏵ Tęsti',
+    'btn-stop':         '⏹ Sustabdyti',
+    'step-read-settings': 'Skaitymo nustatymai',
+    'label-text-size':  'Teksto dydis',
+    'label-bg':         'Fonas',
+    'opt-light':        'Šviesi (numatyta)',
+    'opt-cream':        'Kreminė',
+    'opt-dark':         'Tamsi',
+    'btn-read-aloud':   '🔊 Skaityti garsiai',
+    'btn-stop-reading': '⏹ Sustabdyti skaitymą',
+    'step-read':        'Skaityti',
+    'reader-ph':        'Jūsų tekstas bus rodomas čia.',
+    'step-bill':        'Kiek kainavo sąskaita?',
+    'label-bill':       'Sąskaita iš viso ($)',
+    'step-tip':         'Kiek arbatpinigių?',
+    'label-custom-tip': 'Arba įveskite savo %',
+    'ph-custom-tip':    'pvz., 22',
+    'step-people':      'Kiek žmonių moka?',
+    'label-people':     'Žmonų skaičius',
+    'result-tip':       'Arbatpinigių suma',
+    'result-total':     'Bendra sąskaita (su arbatpinigiais)',
+    'result-each':      'Kiekvienas moka',
+    'step-what-meas':   'Koks matavimas?',
+    'label-category':   'Kategorija',
+    'cat-length':       'Ilgis / Atstumas',
+    'cat-weight':       'Svoris',
+    'cat-temperature':  'Temperatūra',
+    'cat-volume':       'Tūris / Gamyba',
+    'cat-area':         'Plotas',
+    'cat-speed':        'Greitis',
+    'step-pick-units':  'Pasirinkite vienetus',
+    'label-from':       'Nuo',
+    'label-to':         'Į',
+    'btn-swap':         '⇄ Sukeisti',
+    'step-amount':      'Įveskite kiekį',
+    'label-amount':     'Kiekis',
+    'result-label':     'Rezultatas',
+    'step-how-much':    'Kiek, kuria valiuta?',
+    'step-convert-to':  'Į kurią valiutą konvertuoti?',
+    'rate-loading':     'Kraunamas šiandienos kursas…',
+    'step-qr-type':     'Koks QR kodas?',
+    'btn-qr-text':      '📝 Tekstas ar interneto nuoroda',
+    'btn-qr-wifi':      '📶 Wi-Fi',
+    'label-text-url':   'Tekstas arba interneto adresas (URL)',
+    'label-ssid':       'Tinklo pavadinimas (SSID)',
+    'label-security':   'Sauga',
+    'label-wifi-pass':  'Slaptažodis',
+    'ph-wifi-pass':     '(palikite tuščią, jei nėra slaptažodžio)',
+    'step-qr-result':   'Jūsų QR kodas',
+    'btn-dl-qr':        '⬇ Atsisiųsti PNG',
+    'step-add-photo':   'Pridėkite nuotrauką',
+    'drop-photo-big':   'Nuvilkite nuotrauką čia',
+    'drop-photo-small': '…arba spustelėkite, kad pasirinktumėte (JPEG, PNG ar WebP)',
+    'step-pick-size':   'Pasirinkite naują dydį',
+    'label-max-dim':    'Ilgiausia kraštinė',
+    'label-quality':    'Kokybė',
+    'resize-tip':       'Patarimas: 1200–1600 px ir 70–80% kokybės paprastai užtenka el. paštui.',
+    'step-compare':     'Palyginkite ir atsisiųskite',
+    'before':           'Prieš',
+    'after':            'Po',
+    'btn-dl-photo':     '⬇ Atsisiųsti mažesnę nuotrauką',
+    'w2p-subtitle':   'Sukurkite PDF iš Word dokumento arba bet kokio teksto.',
+    'i2p-subtitle':   'Sujunkite savo nuotraukas į vieną PDF jūsų pasirinkta tvarka.',
+    'mrg-subtitle':   'Sulipinkite kelis PDF failus į vieną tvarkįngą failą.',
+    'ral-subtitle':   'Įklijuokite bet kokį tekstą ir leiskite kompiuteriui jį perskaityti garsiai.',
+    'bgt-subtitle':   'Įklijuokite bet kokį tekstą ir skaitykite jį patogiame, dideliame dydyje.',
+    'tip-subtitle':   'Greitas arbatpinigių skaičiavimas, sąskaita padalinta teisingai.',
+    'unt-subtitle':   'Coliai, mylios, svarai, puodeliai, Farenheitas — konvertuokite viską.',
+    'cur-subtitle':   'Šiandienos kursas tarp bet kurių dviejų valiutų. Atnaujinama automatiškai.',
+    'qr-subtitle':    'Sukurkite QR kodą svetainei, Wi-Fi slaptažodžiui ar bet kokiam tekstui.',
+    'pht-subtitle':   'Sumažinkite didėlę nuotrauką, kad tilptų į el. laišką — paprastai iki 1 MB.',
+  },
+
+  /* ---- Estonian ---- */
+  et: {
+    'back':              '← Tagasi kõigi tööriistade juurde',
+    'badge':             'Tasuta • Registreerimiseta • Privaatne',
+    'site-title':        'Lihtsad tööriistad',
+    'site-subtitle':     'Lihtsad asjad, mis lihtsalt töötavad — ilma segaduseta.',
+    'tile-word-title':   'Word või tekst → PDF',
+    'tile-word-desc':    'Muutke Word-dokument või tekst PDF-iks.',
+    'tile-img-title':    'Fotod → PDF',
+    'tile-img-desc':     'Üh endage fotod üheks PDF-iks — sobib täiuslikult kviitungitele.',
+    'tile-merge-title':  'Üh enda PDF-id',
+    'tile-merge-desc':   'Liitke mitu PDF-faili üheks.',
+    'tile-read-title':   'Loe ette',
+    'tile-read-desc':    'Kleepige tekst ja laske arvutil see teile ette lugeda.',
+    'tile-big-title':    'Suur teksti lugeja',
+    'tile-big-desc':     'Vaadake mis tahes teksti suures, kergesti loetavas suuruses.',
+    'tile-tip-title':    'Jootraha ja arve jagaja',
+    'tile-tip-desc':     'Arvutage jootraha ja jagage arve sõprade vahel.',
+    'tile-unit-title':   'Ühikute teisendaja',
+    'tile-unit-desc':    'Tollid, naelad, topsid, miilid, Celsius — kõik ühes kohas.',
+    'tile-curr-title':   'Valuutakursside kalkulaator',
+    'tile-curr-desc':    'Vaadake tänast vahetuskurssi kahe valuuta vahel.',
+    'tile-qr-title':     'QR-koodi tegija',
+    'tile-qr-desc':      'Looge QR-kood veebisaidi, Wi-Fi või mis tahes teksti jaoks.',
+    'tile-photo-title':  'Foto suuruse muutja',
+    'tile-photo-desc':   'Vähendage suurt fotot nii, et see mahub e-kirja.',
+    'faq-heading':   'Levinud küsimused',
+    'faq-q1': 'Kas see on turvaline? Kuhu mu failid lähevad?',
+    'faq-a1': 'Kõik toimub teie veebibrauseris. Faile ei laadita kuhugi üles. Lehe sulgemisel need kaovad.',
+    'faq-q2': 'Kas see on tõesti tasuta?',
+    'faq-a2': 'Jah. Ilma kontode, maksete, prooviperioodide ja reklaamideta.',
+    'faq-q3': 'Kas ma pean midagi installima?',
+    'faq-a3': 'Ei. Lihtsalt klõpsake ülaloleval tööriistal ja alustage kasutamist.',
+    'faq-q4': 'See ei tööta — mida peaksin proovima?',
+    'faq-a4': 'Proovige leht uuesti laadida. Kui kasutate vana brauserit, proovige Chrome, Edge, Firefox või Safari.',
+    'footer-credit': 'Valmistatud hoolega. ❤️',
+    'step-pick-source': 'Valige, mida soovite PDF-iks muuta',
+    'btn-use-file':     '📎 Kasutage Word-faili',
+    'btn-use-text':     '✏️ Sisestage või kleepige tekst',
+    'drop-docx-big':    'Lohistage .docx fail siia',
+    'drop-docx-small':  '…või klõpsake faili valimiseks arvutist',
+    'label-your-text':  'Teie tekst',
+    'ph-paste-text':    'Sisestage või kleepige tekst siia…',
+    'step-name-pdf':    'Andke PDF-ile nimi',
+    'label-file-name':  'Faili nimi',
+    'step-make-pdf':    'Loo PDF',
+    'btn-make-pdf':     '📄 Loo PDF',
+    'btn-working':      'Töötab…',
+    'step-add-photos':  'Lisa fotod',
+    'drop-photos-big':  'Lohistage fotod siia',
+    'drop-photos-small':'…või klõpsake valimiseks (saate valida mitu)',
+    'step-page-settings': 'Lehe seaded',
+    'label-paper':      'Paberi formaat',
+    'label-orient':     'Suund',
+    'opt-portrait':     'Kõrge (portree)',
+    'opt-landscape':    'Lai (maastik)',
+    'step-add-pdfs':    'Lisa PDF-failid',
+    'drop-pdfs-big':    'Lohistage PDF-failid siia',
+    'drop-pdfs-small':  '…või klõpsake nende valimiseks arvutist',
+    'step-name-merge':  'Nimi ja ühendamine',
+    'step-paste-text':  'Kleepige tekst',
+    'step-paste-note':  'Sisestage või kleepige midagi — artikkel, e-kiri, lugu.',
+    'ph-paste-here':    'Kleepige siia…',
+    'step-settings':    'Seaded',
+    'label-voice':      'Hääl',
+    'label-speed':      'Kiirus',
+    'speed-slower':     'Aeglasemalt',
+    'speed-normal':     'Normaalselt',
+    'speed-faster':     'Kiiremalt',
+    'step-listen':      'Kuulake',
+    'btn-play':         '▶ Esita',
+    'btn-pause':        '⏸ Paus',
+    'btn-resume':       '⏵ Jätka',
+    'btn-stop':         '⏹ Peata',
+    'step-read-settings': 'Lugemise seaded',
+    'label-text-size':  'Teksti suurus',
+    'label-bg':         'Taust',
+    'opt-light':        'Hele (vaikimisi)',
+    'opt-cream':        'Kreemjas',
+    'opt-dark':         'Tume',
+    'btn-read-aloud':   '🔊 Loe ette',
+    'btn-stop-reading': '⏹ Peata lugemine',
+    'step-read':        'Lugege',
+    'reader-ph':        'Teie tekst ilmub siia.',
+    'step-bill':        'Kui suur oli arve?',
+    'label-bill':       'Arve kokku ($)',
+    'step-tip':         'Kui palju jootraha?',
+    'label-custom-tip': 'Või sisestage oma %',
+    'ph-custom-tip':    'nt 22',
+    'step-people':      'Mitu inimest maksab?',
+    'label-people':     'Inimeste arv',
+    'result-tip':       'Jootraha summa',
+    'result-total':     'Koguarve (koos jootrahaga)',
+    'result-each':      'Iga inimene maksab',
+    'step-what-meas':   'Millist mõõtmist?',
+    'label-category':   'Kategooria',
+    'cat-length':       'Pikkus / Kaugus',
+    'cat-weight':       'Kaal',
+    'cat-temperature':  'Temperatuur',
+    'cat-volume':       'Maht / Kokkamine',
+    'cat-area':         'Pindala',
+    'cat-speed':        'Kiirus',
+    'step-pick-units':  'Valige ühikud',
+    'label-from':       'Millest',
+    'label-to':         'Milleks',
+    'btn-swap':         '⇄ Vaheta',
+    'step-amount':      'Sisestage kogus',
+    'label-amount':     'Kogus',
+    'result-label':     'Tulemus',
+    'step-how-much':    'Kui palju, millises valuutas?',
+    'step-convert-to':  'Mis valuutasse teisendada?',
+    'rate-loading':     'Laadin tänast kurssi…',
+    'step-qr-type':     'Mis liiki QR-kood?',
+    'btn-qr-text':      '📝 Tekst või veebilink',
+    'btn-qr-wifi':      '📶 Wi-Fi',
+    'label-text-url':   'Tekst või veebiaadress (URL)',
+    'label-ssid':       'Võrgu nimi (SSID)',
+    'label-security':   'Turvalisus',
+    'label-wifi-pass':  'Salasõna',
+    'ph-wifi-pass':     '(jätke tühjaks, kui võrk on avatud)',
+    'step-qr-result':   'Teie QR-kood',
+    'btn-dl-qr':        '⬇ Laadi alla PNG',
+    'step-add-photo':   'Lisa foto',
+    'drop-photo-big':   'Lohistage foto siia',
+    'drop-photo-small': '…või klõpsake valimiseks (JPEG, PNG või WebP)',
+    'step-pick-size':   'Valige uus suurus',
+    'label-max-dim':    'Pikim küllg',
+    'label-quality':    'Kvaliteet',
+    'resize-tip':       'Vihje: 1200–1600 px ja 70–80% kvaliteet on e-kirja jaoks tavaliselt piisav.',
+    'step-compare':     'Võrdle ja laadi alla',
+    'before':           'Enne',
+    'after':            'Pärast',
+    'btn-dl-photo':     '⬇ Laadi alla väiksem foto',
+    'w2p-subtitle':   'Looge PDF Word-dokumendist või mis tahes tekstist.',
+    'i2p-subtitle':   'Üh endage oma fotod üheks PDF-iks teie valitud järjekorras.',
+    'mrg-subtitle':   'Liitke mitu PDF-faili üheks korralikuks failiks.',
+    'ral-subtitle':   'Kleepige mis tahes tekst ja laske arvutil see teile ette lugeda.',
+    'bgt-subtitle':   'Kleepige mis tahes tekst ja lugege seda mugavas, suures suuruses.',
+    'tip-subtitle':   'Kiire jootraha arvestus, arve jagatud õiglaselt.',
+    'unt-subtitle':   'Tollid, miilid, naelad, topsid, Fahrenheit — teisendage kõike.',
+    'cur-subtitle':   'Tänane kurs kahe valuuta vahel. Uueneb automaatselt.',
+    'qr-subtitle':    'Looge QR-kood veebisaidi, Wi-Fi salasõna või mis tahes teksti jaoks.',
+    'pht-subtitle':   'Vähendage suurt fotot nii, et see mahub e-kirja — tavaliselt alla 1 MB.',
+  },
+};
+
+/* ---- Language detection ---- */
+var SUPPORTED = ['en', 'lv', 'lt', 'et'];
+
+function detectLang() {
+  var saved = localStorage.getItem('easytoolslang');
+  if (SUPPORTED.indexOf(saved) !== -1) return saved;
+  var navLangs = (navigator.languages && navigator.languages.length)
+    ? Array.prototype.slice.call(navigator.languages)
+    : [navigator.language || 'en'];
+  for (var i = 0; i < navLangs.length; i++) {
+    var code = (navLangs[i] || '').toLowerCase().split('-')[0];
+    if (SUPPORTED.indexOf(code) !== -1) return code;
+  }
+  return 'en';
+}
+
+/* ---- Apply translations ---- */
+function applyLang(lang) {
+  if (SUPPORTED.indexOf(lang) === -1) lang = 'en';
+  var T = TR[lang];
+  /* data-i18n: set textContent */
+  var els = document.querySelectorAll('[data-i18n]');
+  for (var i = 0; i < els.length; i++) {
+    var key = els[i].getAttribute('data-i18n');
+    if (T[key] !== undefined) els[i].textContent = T[key];
+  }
+  /* data-i18n-ph: set placeholder */
+  var phs = document.querySelectorAll('[data-i18n-ph]');
+  for (var j = 0; j < phs.length; j++) {
+    var k = phs[j].getAttribute('data-i18n-ph');
+    if (T[k] !== undefined) phs[j].placeholder = T[k];
+  }
+  /* Update <html lang> */
+  document.documentElement.lang = lang;
+  /* Update switcher active state */
+  var btns = document.querySelectorAll('.lang-btn');
+  for (var b = 0; b < btns.length; b++) {
+    var isActive = btns[b].getAttribute('data-lang') === lang;
+    btns[b].classList.toggle('active', isActive);
+    btns[b].setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  }
+  /* Expose for tool scripts */
+  window.LANG = lang;
+  window.T = T;
+  /* Persist */
+  try { localStorage.setItem('easytoolslang', lang); } catch(e) {}
+}
+
+/* ---- Inject language switcher into .site-header ---- */
+function injectSwitcher() {
+  var header = document.querySelector('.site-header');
+  if (!header) return;
+  header.style.display = 'flex';
+  header.style.alignItems = 'center';
+  header.style.justifyContent = 'space-between';
+  header.style.flexWrap = 'wrap';
+  header.style.gap = '12px';
+  var wrap = document.createElement('div');
+  wrap.className = 'lang-switcher';
+  wrap.setAttribute('role', 'group');
+  wrap.setAttribute('aria-label', 'Language / Valoda / Kalba / Keel');
+  var flags = [['en','🇬🇧','EN'],['lv','🇱🇻','LV'],['lt','🇱🇹','LT'],['et','🇪🇪','ET']];
+  flags.forEach(function(f) {
+    var btn = document.createElement('button');
+    btn.className = 'lang-btn';
+    btn.setAttribute('data-lang', f[0]);
+    btn.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('type', 'button');
+    btn.textContent = f[1] + ' ' + f[2];
+    btn.addEventListener('click', function() { applyLang(f[0]); });
+    wrap.appendChild(btn);
+  });
+  header.appendChild(wrap);
+}
+
+/* ---- For pages without a .site-header (index.html uses hero) ---- */
+function injectHeroSwitcher() {
+  var badge = document.querySelector('.hero .badge');
+  if (!badge) return;
+  var wrap = document.createElement('div');
+  wrap.className = 'lang-switcher';
+  wrap.setAttribute('role', 'group');
+  wrap.setAttribute('aria-label', 'Language / Valoda / Kalba / Keel');
+  var flags = [['en','🇬🇧','EN'],['lv','🇱🇻','LV'],['lt','🇱🇹','LT'],['et','🇪🇪','ET']];
+  flags.forEach(function(f) {
+    var btn = document.createElement('button');
+    btn.className = 'lang-btn';
+    btn.setAttribute('data-lang', f[0]);
+    btn.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('type', 'button');
+    btn.textContent = f[1] + ' ' + f[2];
+    btn.addEventListener('click', function() { applyLang(f[0]); });
+    wrap.appendChild(btn);
+  });
+  badge.parentNode.insertBefore(wrap, badge);
+}
+
+/* ---- Boot ---- */
+document.addEventListener('DOMContentLoaded', function() {
+  injectSwitcher();
+  injectHeroSwitcher();
+  applyLang(detectLang());
+});
+
+/* ---- Public API ---- */
+window.I18N = { applyLang: applyLang, t: function(k) { return (window.T && window.T[k]) || k; } };
+
+})();

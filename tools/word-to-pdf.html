@@ -8,69 +8,71 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="back-link" href="../index.html">← Back to all tools</a>
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+    <!-- lang switcher injected by i18n.js -->
   </header>
 
   <main class="container">
-    <h1>Word or Text → PDF</h1>
-    <p class="subtitle">Make a clean PDF from a Word document or any text you paste.</p>
+    <h1 data-i18n="tile-word-title">Word or Text → PDF</h1>
+    <p class="subtitle" data-i18n="w2p-subtitle">Make a clean PDF from a Word document or any text you paste.</p>
 
     <section class="panel step" data-step="1">
-      <h2>Pick what you want to turn into a PDF</h2>
+      <h2 data-i18n="step-pick-source">Pick what you want to turn into a PDF</h2>
       <div class="btn-row" role="tablist" aria-label="Source type">
-        <button class="btn btn-primary" id="modeFile" role="tab" aria-selected="true">📎 Use a Word file</button>
-        <button class="btn btn-secondary" id="modeText" role="tab" aria-selected="false">✏️ Type or paste text</button>
+        <button class="btn btn-primary" id="modeFile" role="tab" aria-selected="true" data-i18n="btn-use-file">📎 Use a Word file</button>
+        <button class="btn btn-secondary" id="modeText" role="tab" aria-selected="false" data-i18n="btn-use-text">✏️ Type or paste text</button>
       </div>
 
       <div id="filePane" style="margin-top:18px">
         <div class="dropzone" tabindex="0" role="button" aria-label="Choose a Word document">
-          <div class="big">Drop a .docx file here</div>
-          <div class="small">…or click to choose one from your computer</div>
+          <div class="big" data-i18n="drop-docx-big">Drop a .docx file here</div>
+          <div class="small" data-i18n="drop-docx-small">…or click to choose one from your computer</div>
           <input type="file" id="fileInput" accept=".docx" />
         </div>
         <p class="muted" id="fileChosen" style="margin-top:12px"></p>
       </div>
 
       <div id="textPane" class="hidden" style="margin-top:18px">
-        <label for="textInput">Your text</label>
-        <textarea id="textInput" placeholder="Type or paste your text here…"></textarea>
+        <label for="textInput" data-i18n="label-your-text">Your text</label>
+        <textarea id="textInput" data-i18n-ph="ph-paste-text" placeholder="Type or paste your text here…"></textarea>
       </div>
     </section>
 
     <section class="panel step" data-step="2">
-      <h2>Give your PDF a name</h2>
-      <label for="pdfName">File name</label>
+      <h2 data-i18n="step-name-pdf">Give your PDF a name</h2>
+      <label for="pdfName" data-i18n="label-file-name">File name</label>
       <input type="text" id="pdfName" value="my-document" />
     </section>
 
     <section class="panel step" data-step="3">
-      <h2>Make the PDF</h2>
-      <button class="btn btn-primary btn-block" id="goBtn">📄 Make PDF</button>
+      <h2 data-i18n="step-make-pdf">Make the PDF</h2>
+      <button class="btn btn-primary btn-block" id="goBtn" data-i18n="btn-make-pdf">📄 Make PDF</button>
       <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
     </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.2/mammoth.browser.min.js"></script>
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/shared.js"></script>
   <script>
-    const modeFileBtn = document.getElementById("modeFile");
-    const modeTextBtn = document.getElementById("modeText");
-    const filePane = document.getElementById("filePane");
-    const textPane = document.getElementById("textPane");
-    const fileInput = document.getElementById("fileInput");
-    const fileChosen = document.getElementById("fileChosen");
-    const textInput = document.getElementById("textInput");
-    const pdfName = document.getElementById("pdfName");
-    const goBtn = document.getElementById("goBtn");
-    const banner = document.getElementById("banner");
+    var modeFileBtn = document.getElementById("modeFile");
+    var modeTextBtn = document.getElementById("modeText");
+    var filePane = document.getElementById("filePane");
+    var textPane = document.getElementById("textPane");
+    var fileInput = document.getElementById("fileInput");
+    var fileChosen = document.getElementById("fileChosen");
+    var textInput = document.getElementById("textInput");
+    var pdfName = document.getElementById("pdfName");
+    var goBtn = document.getElementById("goBtn");
+    var banner = document.getElementById("banner");
 
-    let mode = "file";
-    let chosenFile = null;
+    var mode = "file";
+    var chosenFile = null;
 
     function setMode(m) {
       mode = m;
-      const useFile = m === "file";
+      var useFile = m === "file";
       modeFileBtn.className = "btn " + (useFile ? "btn-primary" : "btn-secondary");
       modeTextBtn.className = "btn " + (useFile ? "btn-secondary" : "btn-primary");
       modeFileBtn.setAttribute("aria-selected", useFile);
@@ -78,74 +80,65 @@
       filePane.classList.toggle("hidden", !useFile);
       textPane.classList.toggle("hidden", useFile);
     }
-    modeFileBtn.addEventListener("click", () => setMode("file"));
-    modeTextBtn.addEventListener("click", () => setMode("text"));
+    modeFileBtn.addEventListener("click", function() { setMode("file"); });
+    modeTextBtn.addEventListener("click", function() { setMode("text"); });
 
-    fileInput.addEventListener("change", () => {
+    fileInput.addEventListener("change", function() {
       chosenFile = fileInput.files[0] || null;
-      fileChosen.textContent = chosenFile ? "Chosen: " + chosenFile.name : "";
+      fileChosen.textContent = chosenFile ? "✓ " + chosenFile.name : "";
     });
 
-    function wrapText(text, font, size, maxWidth, doc) {
-      return doc.splitTextToSize(text, maxWidth);
-    }
-
-    async function getText() {
+    function getText() {
       if (mode === "text") {
-        return (textInput.value || "").trim();
+        return Promise.resolve((textInput.value || "").trim());
       }
-      if (!chosenFile) throw new Error("Please choose a Word (.docx) file first.");
-      const buf = await chosenFile.arrayBuffer();
-      const result = await window.mammoth.extractRawText({ arrayBuffer: buf });
-      return (result.value || "").trim();
+      if (!chosenFile) return Promise.reject(new Error("Please choose a Word (.docx) file first."));
+      return chosenFile.arrayBuffer().then(function(buf) {
+        return window.mammoth.extractRawText({ arrayBuffer: buf });
+      }).then(function(result) {
+        return (result.value || "").trim();
+      });
     }
 
     function makePdfFromText(text, name) {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit: "pt", format: "letter" });
-      const margin = 54; // 0.75"
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const usableWidth = pageWidth - margin * 2;
-      const lineHeight = 18;
+      var jsPDF = window.jspdf.jsPDF;
+      var doc = new jsPDF({ unit: "pt", format: "letter" });
+      var margin = 54;
+      var pageWidth = doc.internal.pageSize.getWidth();
+      var pageHeight = doc.internal.pageSize.getHeight();
+      var usableWidth = pageWidth - margin * 2;
+      var lineHeight = 18;
       doc.setFont("times", "normal");
       doc.setFontSize(12);
-
-      const paragraphs = text.split(/\n+/);
-      let y = margin;
-
-      for (const para of paragraphs) {
-        const lines = doc.splitTextToSize(para || " ", usableWidth);
-        for (const line of lines) {
-          if (y + lineHeight > pageHeight - margin) {
-            doc.addPage();
-            y = margin;
-          }
-          doc.text(line, margin, y);
+      var paragraphs = text.split(/\n+/);
+      var y = margin;
+      for (var p = 0; p < paragraphs.length; p++) {
+        var lines = doc.splitTextToSize(paragraphs[p] || " ", usableWidth);
+        for (var l = 0; l < lines.length; l++) {
+          if (y + lineHeight > pageHeight - margin) { doc.addPage(); y = margin; }
+          doc.text(lines[l], margin, y);
           y += lineHeight;
         }
-        y += lineHeight * 0.4; // small gap between paragraphs
+        y += lineHeight * 0.4;
       }
-
-      const filename = (name || "document").replace(/\.pdf$/i, "") + ".pdf";
+      var filename = (name || "document").replace(/\.pdf$/i, "") + ".pdf";
       doc.save(filename);
     }
 
-    goBtn.addEventListener("click", async () => {
+    goBtn.addEventListener("click", function() {
       Helpers.clearBanner(banner);
       goBtn.disabled = true;
-      goBtn.textContent = "Working…";
-      try {
-        const text = await getText();
+      goBtn.textContent = window.I18N.t("btn-working");
+      getText().then(function(text) {
         if (!text) throw new Error("There's no text to put in the PDF.");
         makePdfFromText(text, pdfName.value || "my-document");
-        Helpers.banner(banner, "success", "Done! Your PDF should be downloading now.");
-      } catch (err) {
+        Helpers.banner(banner, "success", "✓ Done! Your PDF should be downloading now.");
+      }).catch(function(err) {
         Helpers.banner(banner, "error", err.message || "Something went wrong. Please try again.");
-      } finally {
+      }).finally(function() {
         goBtn.disabled = false;
-        goBtn.textContent = "📄 Make PDF";
-      }
+        goBtn.textContent = window.I18N.t("btn-make-pdf");
+      });
     });
   </script>
 </body>
