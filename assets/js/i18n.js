@@ -655,7 +655,8 @@ function injectSwitcher() {
   if (!header) return;
   header.style.display = 'flex';
   header.style.alignItems = 'center';
-  header.style.justifyContent = 'space-between';
+  /* Hub page has no back-link — push switcher to the right */
+  header.style.justifyContent = header.children.length === 0 ? 'flex-end' : 'space-between';
   header.style.flexWrap = 'wrap';
   header.style.gap = '12px';
   var wrap = document.createElement('div');
@@ -676,32 +677,10 @@ function injectSwitcher() {
   header.appendChild(wrap);
 }
 
-/* ---- For pages without a .site-header (index.html uses hero) ---- */
-function injectHeroSwitcher() {
-  var badge = document.querySelector('.hero .badge');
-  if (!badge) return;
-  var wrap = document.createElement('div');
-  wrap.className = 'lang-switcher';
-  wrap.setAttribute('role', 'group');
-  wrap.setAttribute('aria-label', 'Language / Valoda / Kalba / Keel');
-  var flags = [['en','🇬🇧','EN'],['lv','🇱🇻','LV'],['lt','🇱🇹','LT'],['et','🇪🇪','ET']];
-  flags.forEach(function(f) {
-    var btn = document.createElement('button');
-    btn.className = 'lang-btn';
-    btn.setAttribute('data-lang', f[0]);
-    btn.setAttribute('aria-pressed', 'false');
-    btn.setAttribute('type', 'button');
-    btn.textContent = f[1] + ' ' + f[2];
-    btn.addEventListener('click', function() { applyLang(f[0]); });
-    wrap.appendChild(btn);
-  });
-  badge.parentNode.insertBefore(wrap, badge);
-}
 
 /* ---- Boot ---- */
 document.addEventListener('DOMContentLoaded', function() {
   injectSwitcher();
-  injectHeroSwitcher();
   applyLang(detectLang());
 });
 
