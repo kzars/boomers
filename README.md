@@ -1,35 +1,53 @@
-# Easy Tools — Senior-Friendly Hub
+# Call Your Son — Free Tools So You Don't Have To
 
-A small, free hub of mini-tools designed for people who get tired of cluttered, ad-filled, signup-required websites. Every tool runs **entirely in your browser** — no files are uploaded anywhere.
+A free hub of 25+ easy-to-use mini-tools for everyday tasks. Built for people who are tired of cluttered, ad-filled, signup-required websites. Every tool runs **entirely in your browser** — no files are uploaded anywhere.
 
-## The Tools
+Live at: **callyourson.com**
 
-1. **Word or Text → PDF** — drop a `.docx` or paste text, get a clean PDF
-2. **Photos → PDF** — combine pictures into a single PDF
-3. **Merge PDFs** — glue multiple PDFs into one
-4. **Read Aloud** — paste text and hear it spoken
-5. **Big Text Reader** — paste text and read it in a comfortable, large size
-6. **Tip & Bill Splitter** — calculate the tip and split fairly
-7. **Unit Converter** — length, weight, temp, volume, area, speed
-8. **Currency Converter** — today's exchange rate (live)
-9. **QR Code Maker** — for any link, text, or Wi-Fi
-10. **Photo Resizer** — shrink a photo so email won't reject it
+## Tools
+
+### Documents & PDF
+- **Word or Text → PDF** — drop a `.docx` or paste text, get a clean PDF
+- **Photos → PDF** — combine pictures into a single PDF
+- **Merge PDFs** — glue multiple PDFs into one
+- **PDF Splitter** — extract specific pages from a PDF
+- **PDF Compressor** — shrink large PDFs for email
+- **PDF Page Rotator** — rotate or delete pages
+
+### Photos & Images
+- **Photo Resizer** — shrink a photo so email won't reject it
+- **HEIC → JPG** — convert iPhone photos for Windows
+- **Image Cropper** — crop any photo to the size you want
+- **Image Format Converter** — PNG ↔ JPG ↔ WebP
+
+### Money & Math
+- **Tip & Bill Splitter** — calculate the tip and split fairly
+- **Unit Converter** — length, weight, temp, volume, area, speed
+- **Currency Converter** — today's exchange rate (live)
+- **Mortgage / Loan Calculator** — monthly payment for any loan
+- **Date & Age Calculator** — days between dates, age from birthday
+- **Discount / Sale Calculator** — "30% off $80?" answered instantly
+- **BMI Calculator** — body mass index, simply explained
+
+### Reading & Hearing
+- **Read Aloud** — paste text and hear it spoken
+- **Big Text Reader** — paste text and read it in a large, comfortable size
+
+### Daily Life
+- **QR Code Maker** — for any link, text, or Wi-Fi
+- **Stopwatch & Timer** — with beep at zero
+- **World Clock** — see what time it is for family abroad
+- **Notepad** — quick notes that survive a page reload
+
+### Safety & Privacy
+- **Password Generator** — strong random passwords, instantly
+- **Scam Link Checker** — check a suspicious link before clicking it
 
 ## Use it
 
 Open `index.html` in any modern browser. That's it — no install step.
 
 The currency converter is the only tool that uses the internet (to fetch today's exchange rate). Everything else works offline.
-
-### If you want to run a tiny local server
-
-Some browsers restrict `fetch()` from `file://`, which can affect the currency tool. To avoid that:
-
-```sh
-python3 -m http.server 8000
-```
-
-Then visit `http://localhost:8000/`.
 
 ## Deploy
 
@@ -45,26 +63,30 @@ This is a plain static site — drop the whole folder onto:
 index.html                  Hub homepage
 assets/css/style.css        Shared design system
 assets/js/shared.js         Shared helpers (drag-drop, banners, downloads)
+assets/js/i18n.js           Translations: EN / LV / LT / ET
+assets/js/search.js         Live tile search/filter
 tools/*.html                One self-contained file per tool
 ```
 
-Each tool is a single, readable HTML file. Open one in a text editor and you can see exactly how it works.
+## Languages
+
+EN / LV / LT / ET — auto-detected from browser, switches instantly, persists across visits.
 
 ## Design principles
 
-- **20px base font**, 32–52px headings, never below 18px
-- **WCAG AAA contrast** (≥ 7:1) on text
-- **60 px+ click targets**, generous spacing
+- Large text (17px+ base), clear headings, no tiny buttons
+- **WCAG AAA contrast** (≥ 7:1) on all text
+- **48px+ click targets** throughout
 - **Plain language** — "Pick your file", not "Select input source"
-- **Step-by-step** layout with numbered panels
+- **Step-by-step** numbered panels for every tool
 - **No popups, no ads, no signups, no tracking**
 
-## Libraries (loaded from CDN)
+## Libraries (CDN)
 
 - [`jsPDF`](https://github.com/parallax/jsPDF) — Word/Text → PDF, Photos → PDF
-- [`pdf-lib`](https://pdf-lib.js.org/) — PDF merger
+- [`pdf-lib`](https://pdf-lib.js.org/) — PDF merger, splitter, compressor, rotator
 - [`mammoth.js`](https://github.com/mwilliamson/mammoth.js) — `.docx` parsing
 - [`qrcode`](https://github.com/soldair/node-qrcode) — QR generation
+- [`heic2any`](https://github.com/alexcorvi/heic2any) — HEIC → JPG conversion
 
-The Read Aloud tool uses the browser's built-in Web Speech API (no library).
-The Photo Resizer uses the browser's built-in Canvas API (no library).
+Read Aloud, Big Text, Photo Resizer, Image Cropper, Image Converter, and all calculators use only built-in browser APIs.

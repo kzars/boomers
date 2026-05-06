@@ -1,5 +1,5 @@
 /* ============================================================
-   Easy Tools — Internationalisation (EN / LV / LT / ET)
+   Call Your Son — Internationalisation (EN / LV / LT / ET)
    Auto-detects from browser language; persists to localStorage.
    ============================================================ */
 
@@ -11,8 +11,8 @@ var TR = {
     /* Site-wide */
     'back':              '← Back to all tools',
     'badge':             'Free • No signup • Private',
-    'site-title':        'Easy Tools',
-    'site-subtitle':     'Simple things that just work — no fuss, no clutter.',
+    'site-title':        'Call Your Son',
+    'site-subtitle':     'Free tools so you don\'t have to.',
     /* Hub tiles */
     'tile-word-title':   'Word or Text → PDF',
     'tile-word-desc':    'Turn a Word document or any text into a tidy PDF.',
@@ -169,8 +169,8 @@ var TR = {
   lv: {
     'back':              '← Atpakaļ uz visiem rīkiem',
     'badge':             'Bezmaksās • Bez reģistrācijas • Privāts',
-    'site-title':        'Vienkāršie rīki',
-    'site-subtitle':     'Vienkāršas lietas, kas vienkārši darbojas — bez sarēģījumiem.',
+    'site-title':        'Piezvani Dēlam',
+    'site-subtitle':     'Bezmaksas rīki, lai nebūtu jāzvana.',
     'tile-word-title':   'Word vai teksts → PDF',
     'tile-word-desc':    'Pārvērtiet Word dokumentu vai jebkuru tekstu par PDF.',
     'tile-img-title':    'Fotogrāfijas → PDF',
@@ -314,8 +314,8 @@ var TR = {
   lt: {
     'back':              '← Atgal į visus įrankius',
     'badge':             'Nemokama • Be registracijos • Privatu',
-    'site-title':        'Paprasti įrankiai',
-    'site-subtitle':     'Paprasti dalykai, kurie tiesiog veikia — be jokio chaoso.',
+    'site-title':        'Paskambink Sūnui',
+    'site-subtitle':     'Nemokami įrankiai — kad nereikėtų skambinti.',
     'tile-word-title':   'Word arba tekstas → PDF',
     'tile-word-desc':    'Paverskite Word dokumentą arba tekstą į PDF.',
     'tile-img-title':    'Nuotraukos → PDF',
@@ -459,8 +459,8 @@ var TR = {
   et: {
     'back':              '← Tagasi kõigi tööriistade juurde',
     'badge':             'Tasuta • Registreerimiseta • Privaatne',
-    'site-title':        'Lihtsad tööriistad',
-    'site-subtitle':     'Lihtsad asjad, mis lihtsalt töötavad — ilma segaduseta.',
+    'site-title':        'Helista Pojale',
+    'site-subtitle':     'Tasuta tööriistad — et ei peaks helistama.',
     'tile-word-title':   'Word või tekst → PDF',
     'tile-word-desc':    'Muutke Word-dokument või tekst PDF-iks.',
     'tile-img-title':    'Fotod → PDF',
@@ -605,7 +605,7 @@ var TR = {
 var SUPPORTED = ['en', 'lv', 'lt', 'et'];
 
 function detectLang() {
-  var saved = localStorage.getItem('easytoolslang');
+  var saved = localStorage.getItem('cyslang');
   if (SUPPORTED.indexOf(saved) !== -1) return saved;
   var navLangs = (navigator.languages && navigator.languages.length)
     ? Array.prototype.slice.call(navigator.languages)
@@ -646,7 +646,7 @@ function applyLang(lang) {
   window.LANG = lang;
   window.T = T;
   /* Persist */
-  try { localStorage.setItem('easytoolslang', lang); } catch(e) {}
+  try { localStorage.setItem('cyslang', lang); } catch(e) {}
 }
 
 /* ---- Inject language switcher into .site-header ---- */
