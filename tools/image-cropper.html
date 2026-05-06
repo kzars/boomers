@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Image Cropper — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+<style>
+  .canvas-wrap {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #sourceCanvas { display: block; max-width: 100%; border-radius: var(--radius); border: 2px solid var(--border); }
+  #cropOverlay {
+    position: absolute;
+    border: 2px dashed #fff;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
+    pointer-events: none;
+    display: none;
+    border-radius: 2px;
+  }
+  .canvas-wrap-outer { overflow: auto; margin-top: 12px; }
+  .stat { font-size: 16px; color: var(--ink-soft); margin: 6px 0 0; text-align: center; }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-crop-title">Image Cropper</h1>
+    <p class="subtitle" data-i18n="crop-subtitle">Select any part of a photo and download the cropped result.</p>
+
+    <section class="panel step" data-step="1">
+      <h2 data-i18n="step-add-crop">Add your photo</h2>
+      <div class="dropzone" tabindex="0" role="button" aria-label="Pick a photo">
+        <div class="big" data-i18n="drop-crop-big">Drop a photo here</div>
+        <div class="small" data-i18n="drop-crop-small">…or click to choose one (JPEG, PNG, or WebP)</div>
+        <input type="file" id="fileInput" accept="image/*" />
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2" id="cropPanel" style="display:none">
+      <h2 data-i18n="step-crop-area">Drag to select the area you want</h2>
+      <p class="muted" style="margin:0 0 8px;font-size:15px" data-i18n="crop-tip">Drag inside the image to draw your crop area.</p>
+      <div class="canvas-wrap-outer">
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="sourceCanvas"></canvas>
+          <div id="cropOverlay"></div>
+        </div>
+      </div>
+      <p class="stat" id="selStat"></p>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-block" id="downloadBtn" disabled data-i18n="btn-dl-crop">⬇ Download cropped photo</button>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    var fileInput = document.getElementById('fileInput');
+    var canvasWrap = document.getElementById('canvasWrap');
+    var sourceCanvas = document.getElementById('sourceCanvas');
+    var cropOverlay = document.getElementById('cropOverlay');
+    var downloadBtn = document.getElementById('downloadBtn');
+    var selStat = document.getElementById('selStat');
+    var banner = document.getElementById('banner');
+    var cropPanel = document.getElementById('cropPanel');
+
+    var img = null;
+    var originalFile = null;
+    var scale = 1;
+    var drag = { active: false, startX: 0, startY: 0, x: 0, y: 0, w: 0, h: 0 };
+
+    fileInput.addEventListener('change', function() {
+      Helpers.clearBanner(banner);
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      if (!f.type.startsWith('image/')) {
+        Helpers.banner(banner, 'warn', 'Please pick an image file.');
+        return;
+      }
+      originalFile = f;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        img = new Image();
+        img.onload = function() {
+          var maxW = Math.min(img.width, canvasWrap.parentElement.clientWidth - 40 || 700);
+          scale = Math.min(1, maxW / img.width);
+          sourceCanvas.width = Math.round(img.width * scale);
+          sourceCanvas.height = Math.round(img.height * scale);
+          var ctx = sourceCanvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, sourceCanvas.width, sourceCanvas.height);
+          cropOverlay.style.display = 'none';
+          downloadBtn.disabled = true;
+          selStat.textContent = '';
+          cropPanel.style.display = '';
+          drag = { active: false, startX: 0, startY: 0, x: 0, y: 0, w: 0, h: 0 };
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(f);
+    });
+
+    function canvasPos(e) {
+      var rect = sourceCanvas.getBoundingClientRect();
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: Math.max(0, Math.min(sourceCanvas.width, clientX - rect.left)),
+        y: Math.max(0, Math.min(sourceCanvas.height, clientY - rect.top))
+      };
+    }
+
+    function showOverlay() {
+      var x = Math.min(drag.startX, drag.x);
+      var y = Math.min(drag.startY, drag.y);
+      var w = Math.abs(drag.x - drag.startX);
+      var h = Math.abs(drag.y - drag.startY);
+      cropOverlay.style.left = x + 'px';
+      cropOverlay.style.top = y + 'px';
+      cropOverlay.style.width = w + 'px';
+      cropOverlay.style.height = h + 'px';
+      cropOverlay.style.display = w > 4 && h > 4 ? 'block' : 'none';
+      if (w > 4 && h > 4) {
+        var rw = Math.round(w / scale);
+        var rh = Math.round(h / scale);
+        selStat.textContent = rw + ' × ' + rh + ' px';
+        downloadBtn.disabled = false;
+      } else {
+        selStat.textContent = '';
+        downloadBtn.disabled = true;
+      }
+    }
+
+    canvasWrap.addEventListener('mousedown', function(e) {
+      if (!img) return;
+      var p = canvasPos(e);
+      drag.active = true; drag.startX = p.x; drag.startY = p.y; drag.x = p.x; drag.y = p.y;
+      e.preventDefault();
+    });
+    canvasWrap.addEventListener('mousemove', function(e) {
+      if (!drag.active) return;
+      var p = canvasPos(e);
+      drag.x = p.x; drag.y = p.y;
+      showOverlay();
+    });
+    canvasWrap.addEventListener('mouseup', function() { drag.active = false; });
+
+    canvasWrap.addEventListener('touchstart', function(e) {
+      if (!img) return;
+      var p = canvasPos(e);
+      drag.active = true; drag.startX = p.x; drag.startY = p.y; drag.x = p.x; drag.y = p.y;
+    }, { passive: true });
+    canvasWrap.addEventListener('touchmove', function(e) {
+      if (!drag.active) return;
+      var p = canvasPos(e);
+      drag.x = p.x; drag.y = p.y;
+      showOverlay();
+    }, { passive: true });
+    canvasWrap.addEventListener('touchend', function() { drag.active = false; });
+
+    downloadBtn.addEventListener('click', function() {
+      if (!img) return;
+      var cx = Math.round(Math.min(drag.startX, drag.x) / scale);
+      var cy = Math.round(Math.min(drag.startY, drag.y) / scale);
+      var cw = Math.round(Math.abs(drag.x - drag.startX) / scale);
+      var ch = Math.round(Math.abs(drag.y - drag.startY) / scale);
+      if (cw < 2 || ch < 2) return;
+      var out = document.createElement('canvas');
+      out.width = cw; out.height = ch;
+      out.getContext('2d').drawImage(img, cx, cy, cw, ch, 0, 0, cw, ch);
+      var isPng = originalFile && originalFile.type === 'image/png';
+      out.toBlob(function(blob) {
+        if (!blob) return;
+        var base = originalFile ? originalFile.name.replace(/\.[^.]+$/, '') : 'photo';
+        Helpers.download(blob, base + '-cropped.' + (isPng ? 'png' : 'jpg'));
+      }, isPng ? 'image/png' : 'image/jpeg', 0.92);
+    });
+  </script>
+</body>
+</html>

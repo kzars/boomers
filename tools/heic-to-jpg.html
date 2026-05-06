@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HEIC to JPG — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+<style>
+  .preview-wrap { text-align: center; margin-top: 12px; }
+  .preview-wrap img { max-height: 320px; border-radius: var(--radius); border: 2px solid var(--border); margin: 0 auto; }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-heic-title">HEIC → JPG</h1>
+    <p class="subtitle" data-i18n="heic-subtitle">Convert iPhone HEIC photos to JPG so any computer can open them.</p>
+
+    <section class="panel step" data-step="1">
+      <h2 data-i18n="step-add-heic">Add your HEIC photo</h2>
+      <div class="dropzone" tabindex="0" role="button" aria-label="Pick a HEIC photo">
+        <div class="big" data-i18n="drop-heic-big">Drop a HEIC or HEIF photo here</div>
+        <div class="small" data-i18n="drop-heic-small">…or click to choose one from your computer</div>
+        <input type="file" id="fileInput" accept=".heic,.heif,image/heic,image/heif" />
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2 data-i18n="step-heic-result">Your converted photo</h2>
+      <div class="preview-wrap">
+        <img id="preview" alt="" style="display:none" />
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-block" id="downloadBtn" disabled data-i18n="btn-dl-jpg">⬇ Download JPG</button>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    var fileInput = document.getElementById('fileInput');
+    var preview = document.getElementById('preview');
+    var downloadBtn = document.getElementById('downloadBtn');
+    var banner = document.getElementById('banner');
+    var outputBlob = null;
+    var originalName = 'photo';
+
+    fileInput.addEventListener('change', function() {
+      Helpers.clearBanner(banner);
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      originalName = f.name.replace(/\.[^.]+$/, '');
+      downloadBtn.disabled = true;
+      preview.style.display = 'none';
+      outputBlob = null;
+      var T = window.T || {};
+      Helpers.banner(banner, 'info', T['heic-converting'] || 'Converting…');
+      heic2any({ blob: f, toType: 'image/jpeg', quality: 0.92 }).then(function(result) {
+        outputBlob = Array.isArray(result) ? result[0] : result;
+        Helpers.clearBanner(banner);
+        var url = URL.createObjectURL(outputBlob);
+        preview.src = url;
+        preview.style.display = 'block';
+        downloadBtn.disabled = false;
+      }).catch(function(err) {
+        Helpers.banner(banner, 'error', 'Could not convert this file. Make sure it is a HEIC or HEIF photo from an iPhone.');
+      });
+    });
+
+    downloadBtn.addEventListener('click', function() {
+      if (!outputBlob) return;
+      Helpers.download(outputBlob, originalName + '.jpg');
+    });
+  </script>
+</body>
+</html>
