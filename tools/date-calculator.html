@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Date & Age Calculator — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-date-title">Date &amp; Age Calculator</h1>
+    <p class="subtitle" data-i18n="date-subtitle">Days between dates — or how old someone is today.</p>
+
+    <section class="panel step" data-step="1">
+      <h2 data-i18n="step-date-mode">What do you want to calculate?</h2>
+      <div class="btn-row" role="tablist">
+        <button class="btn btn-primary" id="modeBetween" role="tab" aria-selected="true" data-i18n="btn-mode-between">📅 Days between two dates</button>
+        <button class="btn btn-secondary" id="modeAge" role="tab" aria-selected="false" data-i18n="btn-mode-age">🎂 How old is someone?</button>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2" id="paneBetween">
+      <div class="row">
+        <div>
+          <label for="dateFrom" data-i18n="label-date-from">Start date</label>
+          <input type="date" id="dateFrom" />
+        </div>
+        <div>
+          <label for="dateTo" data-i18n="label-date-to">End date</label>
+          <input type="date" id="dateTo" />
+        </div>
+      </div>
+    </section>
+
+    <section class="panel step hidden" data-step="2" id="paneAge">
+      <div>
+        <label for="birthDate" data-i18n="label-birth-date">Date of birth</label>
+        <input type="date" id="birthDate" />
+      </div>
+    </section>
+
+    <section class="panel step" data-step="3" id="resultPanel">
+      <h2 data-i18n="result-label">Result</h2>
+      <div class="row" id="resultBetween" style="margin-top:8px">
+        <div class="center">
+          <div class="big-result" id="resDays">—</div>
+          <div class="result-label" data-i18n="date-days">Days</div>
+        </div>
+        <div class="center">
+          <div class="big-result" id="resWeeks">—</div>
+          <div class="result-label" data-i18n="date-weeks">Weeks</div>
+        </div>
+        <div class="center">
+          <div class="big-result" id="resMonths">—</div>
+          <div class="result-label" data-i18n="date-months">Months</div>
+        </div>
+      </div>
+      <div class="row hidden" id="resultAge" style="margin-top:8px">
+        <div class="center">
+          <div class="big-result" id="resAge">—</div>
+          <div class="result-label" data-i18n="date-age-label">Age today</div>
+        </div>
+        <div class="center">
+          <div class="big-result" id="resBday">—</div>
+          <div class="result-label" data-i18n="date-next-bday">Next birthday in</div>
+        </div>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    var mode = 'between';
+    var modeBetween = document.getElementById('modeBetween');
+    var modeAge = document.getElementById('modeAge');
+    var paneBetween = document.getElementById('paneBetween');
+    var paneAge = document.getElementById('paneAge');
+    var resultBetween = document.getElementById('resultBetween');
+    var resultAge = document.getElementById('resultAge');
+    var banner = document.getElementById('banner');
+
+    var today = new Date();
+    var yyyy = today.getFullYear();
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var dd = String(today.getDate()).padStart(2, '0');
+    document.getElementById('dateTo').value = yyyy + '-' + mm + '-' + dd;
+    var lastMonth = new Date(today);
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+    var mm2 = String(lastMonth.getMonth() + 1).padStart(2, '0');
+    var dd2 = String(lastMonth.getDate()).padStart(2, '0');
+    document.getElementById('dateFrom').value = lastMonth.getFullYear() + '-' + mm2 + '-' + dd2;
+    document.getElementById('birthDate').value = (yyyy - 50) + '-' + mm + '-' + dd;
+
+    function setMode(m) {
+      mode = m;
+      modeBetween.className = 'btn ' + (m === 'between' ? 'btn-primary' : 'btn-secondary');
+      modeAge.className = 'btn ' + (m === 'age' ? 'btn-primary' : 'btn-secondary');
+      modeBetween.setAttribute('aria-selected', m === 'between');
+      modeAge.setAttribute('aria-selected', m === 'age');
+      paneBetween.classList.toggle('hidden', m !== 'between');
+      paneAge.classList.toggle('hidden', m !== 'age');
+      resultBetween.classList.toggle('hidden', m !== 'between');
+      resultAge.classList.toggle('hidden', m !== 'age');
+      calculate();
+    }
+
+    modeBetween.addEventListener('click', function() { setMode('between'); });
+    modeAge.addEventListener('click', function() { setMode('age'); });
+
+    function calculate() {
+      Helpers.clearBanner(banner);
+      if (mode === 'between') {
+        var from = new Date(document.getElementById('dateFrom').value);
+        var to = new Date(document.getElementById('dateTo').value);
+        if (isNaN(from) || isNaN(to)) return;
+        var diffMs = to - from;
+        var days = Math.round(diffMs / 86400000);
+        document.getElementById('resDays').textContent = days.toLocaleString();
+        document.getElementById('resWeeks').textContent = Math.floor(Math.abs(days) / 7).toLocaleString();
+        document.getElementById('resMonths').textContent = (Math.abs(days) / 30.44).toFixed(1);
+      } else {
+        var birth = new Date(document.getElementById('birthDate').value);
+        if (isNaN(birth)) return;
+        var now = new Date();
+        var years = now.getFullYear() - birth.getFullYear();
+        var mDiff = now.getMonth() - birth.getMonth();
+        if (mDiff < 0 || (mDiff === 0 && now.getDate() < birth.getDate())) years--;
+        document.getElementById('resAge').textContent = years;
+        var nextBday = new Date(now.getFullYear(), birth.getMonth(), birth.getDate());
+        if (nextBday <= now) nextBday.setFullYear(now.getFullYear() + 1);
+        var daysUntil = Math.round((nextBday - now) / 86400000);
+        document.getElementById('resBday').textContent = daysUntil + (window.T ? ' ' + (window.T['date-days'] || 'days') : ' days');
+      }
+    }
+
+    ['dateFrom', 'dateTo', 'birthDate'].forEach(function(id) {
+      document.getElementById(id).addEventListener('change', calculate);
+    });
+    calculate();
+  </script>
+</body>
+</html>

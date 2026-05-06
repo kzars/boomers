@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mortgage Calculator — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-mort-title">Mortgage Calculator</h1>
+    <p class="subtitle" data-i18n="mort-subtitle">Monthly payment for any mortgage or personal loan.</p>
+
+    <section class="panel step" data-step="1">
+      <h2 data-i18n="step-mort-loan">Loan details</h2>
+      <div class="row">
+        <div>
+          <label for="loanAmount" data-i18n="label-loan-amount">Loan amount</label>
+          <input type="number" id="loanAmount" min="1000" step="1000" value="300000" />
+        </div>
+        <div>
+          <label for="interestRate" data-i18n="label-interest">Annual interest rate (%)</label>
+          <input type="number" id="interestRate" min="0.1" max="30" step="0.1" value="6" />
+        </div>
+        <div>
+          <label for="termYears" data-i18n="label-term-years">Loan term (years)</label>
+          <input type="number" id="termYears" min="1" max="40" step="1" value="30" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="calcBtn" data-i18n="btn-calc-mort">📊 Calculate</button>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2" id="resultPanel">
+      <h2 data-i18n="result-label">Result</h2>
+      <div class="row" style="margin-top:8px">
+        <div class="center">
+          <div class="big-result" id="monthlyResult">—</div>
+          <div class="result-label" data-i18n="mort-monthly">Monthly payment</div>
+        </div>
+        <div class="center">
+          <div class="big-result" id="totalResult">—</div>
+          <div class="result-label" data-i18n="mort-total">Total you pay back</div>
+        </div>
+        <div class="center">
+          <div class="big-result" id="interestResult">—</div>
+          <div class="result-label" data-i18n="mort-interest-paid">Total interest paid</div>
+        </div>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    var calcBtn = document.getElementById('calcBtn');
+    var banner = document.getElementById('banner');
+
+    function fmt(n) {
+      return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calculate() {
+      Helpers.clearBanner(banner);
+      var P = parseFloat(document.getElementById('loanAmount').value);
+      var annualRate = parseFloat(document.getElementById('interestRate').value);
+      var years = parseInt(document.getElementById('termYears').value, 10);
+      if (!P || P <= 0 || !annualRate || annualRate <= 0 || !years || years <= 0) {
+        Helpers.banner(banner, 'warn', 'Please fill in all fields with positive numbers.');
+        return;
+      }
+      var r = annualRate / 100 / 12;
+      var n = years * 12;
+      var monthly = r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+      var total = monthly * n;
+      var interest = total - P;
+      document.getElementById('monthlyResult').textContent = '$' + fmt(monthly);
+      document.getElementById('totalResult').textContent = '$' + fmt(total);
+      document.getElementById('interestResult').textContent = '$' + fmt(interest);
+    }
+
+    calcBtn.addEventListener('click', calculate);
+    [document.getElementById('loanAmount'), document.getElementById('interestRate'), document.getElementById('termYears')]
+      .forEach(function(el) { el.addEventListener('keydown', function(e) { if (e.key === 'Enter') calculate(); }); });
+    calculate();
+  </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BMI Calculator — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+<style>
+  .bmi-bar-wrap { background: var(--surface-2); border-radius: 999px; height: 16px; margin: 12px 0 4px; overflow: hidden; }
+  .bmi-bar { height: 100%; border-radius: 999px; transition: width 300ms ease; background: var(--accent); }
+  .bmi-category { font-size: 20px; font-weight: 800; text-align: center; margin-top: 8px; }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-bmi-title">BMI Calculator</h1>
+    <p class="subtitle" data-i18n="bmi-subtitle">Body-mass index — a quick health reference.</p>
+
+    <section class="panel step" data-step="1">
+      <h2 data-i18n="step-bmi-inputs">Your measurements</h2>
+      <div>
+        <label for="system" data-i18n="label-bmi-system">Measurement system</label>
+        <select id="system">
+          <option value="metric" data-i18n="opt-metric">Metric (kg / cm)</option>
+          <option value="imperial" data-i18n="opt-imperial">Imperial (lbs / in)</option>
+        </select>
+      </div>
+      <div class="row" style="margin-top:14px" id="metricFields">
+        <div>
+          <label for="weightKg" data-i18n="label-weight-kg">Weight (kg)</label>
+          <input type="number" id="weightKg" min="20" max="300" step="0.5" value="70" />
+        </div>
+        <div>
+          <label for="heightCm" data-i18n="label-height-cm">Height (cm)</label>
+          <input type="number" id="heightCm" min="100" max="250" step="1" value="175" />
+        </div>
+      </div>
+      <div class="row hidden" style="margin-top:14px" id="imperialFields">
+        <div>
+          <label for="weightLbs" data-i18n="label-weight-lbs">Weight (lbs)</label>
+          <input type="number" id="weightLbs" min="50" max="700" step="1" value="154" />
+        </div>
+        <div>
+          <label for="heightFt" data-i18n="label-height-ft">Height (ft)</label>
+          <input type="number" id="heightFt" min="3" max="8" step="1" value="5" />
+        </div>
+        <div>
+          <label for="heightIn" data-i18n="label-height-in">Height (in)</label>
+          <input type="number" id="heightIn" min="0" max="11" step="1" value="9" />
+        </div>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2 data-i18n="bmi-label">Your BMI</h2>
+      <div class="center">
+        <div class="big-result" id="bmiResult">—</div>
+      </div>
+      <div class="bmi-bar-wrap"><div class="bmi-bar" id="bmiBar" style="width:0%"></div></div>
+      <div class="bmi-category" id="bmiCategory"></div>
+      <p class="muted" style="font-size:15px;margin-top:12px" data-i18n="bmi-note">BMI is a general guide. For medical advice, please speak with your doctor.</p>
+    </section>
+  </main>
+
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    var system = document.getElementById('system');
+    var metricFields = document.getElementById('metricFields');
+    var imperialFields = document.getElementById('imperialFields');
+    var bmiResult = document.getElementById('bmiResult');
+    var bmiBar = document.getElementById('bmiBar');
+    var bmiCategory = document.getElementById('bmiCategory');
+
+    var CATEGORIES = [
+      { max: 18.5, key: 'bmi-underweight', color: '#3B82F6' },
+      { max: 25,   key: 'bmi-normal',      color: '#15803D' },
+      { max: 30,   key: 'bmi-overweight',  color: '#D97706' },
+      { max: Infinity, key: 'bmi-obese',   color: '#B91C1C' },
+    ];
+
+    system.addEventListener('change', function() {
+      var isMetric = system.value === 'metric';
+      metricFields.classList.toggle('hidden', !isMetric);
+      imperialFields.classList.toggle('hidden', isMetric);
+      calculate();
+    });
+
+    function calculate() {
+      var bmi;
+      if (system.value === 'metric') {
+        var kg = parseFloat(document.getElementById('weightKg').value);
+        var cm = parseFloat(document.getElementById('heightCm').value);
+        if (!kg || !cm) return;
+        var m = cm / 100;
+        bmi = kg / (m * m);
+      } else {
+        var lbs = parseFloat(document.getElementById('weightLbs').value);
+        var ft = parseFloat(document.getElementById('heightFt').value) || 0;
+        var inch = parseFloat(document.getElementById('heightIn').value) || 0;
+        var totalIn = ft * 12 + inch;
+        if (!lbs || !totalIn) return;
+        bmi = (lbs / (totalIn * totalIn)) * 703;
+      }
+      bmiResult.textContent = bmi.toFixed(1);
+      var pct = Math.min(100, Math.max(5, (bmi / 40) * 100));
+      bmiBar.style.width = pct + '%';
+      for (var i = 0; i < CATEGORIES.length; i++) {
+        if (bmi < CATEGORIES[i].max) {
+          bmiBar.style.background = CATEGORIES[i].color;
+          var T = window.T || {};
+          bmiCategory.textContent = T[CATEGORIES[i].key] || CATEGORIES[i].key;
+          bmiCategory.style.color = CATEGORIES[i].color;
+          break;
+        }
+      }
+    }
+
+    ['weightKg','heightCm','weightLbs','heightFt','heightIn'].forEach(function(id) {
+      document.getElementById(id).addEventListener('input', calculate);
+    });
+    calculate();
+  </script>
+</body>
+</html>
