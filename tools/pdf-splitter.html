@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PDF Splitter — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-pdf-split-title">PDF Splitter</h1>
+    <p class="subtitle" data-i18n="split-subtitle">Extract specific pages from a PDF — for example, just pages 2 to 5.</p>
+
+    <section class="panel step" data-step="1">
+      <h2 data-i18n="step-add-split">Add your PDF</h2>
+      <div class="dropzone" tabindex="0" role="button" aria-label="Pick a PDF">
+        <div class="big" data-i18n="drop-split-big">Drop a PDF here</div>
+        <div class="small" data-i18n="drop-split-small">…or click to choose one from your computer</div>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" />
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2 data-i18n="step-split-range">Which pages do you want?</h2>
+      <p class="muted" id="pageCountMsg" style="margin:0 0 10px"></p>
+      <label for="pageRange" data-i18n="label-page-range">Pages (e.g. 1-3, 5, 7-9)</label>
+      <input type="text" id="pageRange" data-i18n-ph="ph-page-range" placeholder="1-3, 5, 7-9" />
+      <div class="btn-row">
+        <button class="btn btn-primary" id="splitBtn" disabled data-i18n="btn-split-pdf">✂️ Extract pages</button>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    var fileInput = document.getElementById('fileInput');
+    var pageRange = document.getElementById('pageRange');
+    var splitBtn = document.getElementById('splitBtn');
+    var banner = document.getElementById('banner');
+    var pageCountMsg = document.getElementById('pageCountMsg');
+    var pdfBytes = null;
+    var totalPages = 0;
+    var origName = 'document';
+
+    fileInput.addEventListener('change', function() {
+      Helpers.clearBanner(banner);
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      origName = f.name.replace(/\.pdf$/i, '');
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        pdfBytes = new Uint8Array(e.target.result);
+        PDFLib.PDFDocument.load(pdfBytes).then(function(doc) {
+          totalPages = doc.getPageCount();
+          pageCountMsg.textContent = 'This PDF has ' + totalPages + ' page' + (totalPages === 1 ? '' : 's') + '.';
+          splitBtn.disabled = false;
+        }).catch(function() {
+          Helpers.banner(banner, 'error', 'Could not read this PDF. Is it password-protected?');
+        });
+      };
+      reader.readAsArrayBuffer(f);
+    });
+
+    function parseRange(str, total) {
+      var pages = [];
+      var parts = str.split(',');
+      for (var i = 0; i < parts.length; i++) {
+        var part = parts[i].trim();
+        var m = part.match(/^(\d+)\s*[-–]\s*(\d+)$/);
+        if (m) {
+          var from = parseInt(m[1], 10);
+          var to = parseInt(m[2], 10);
+          for (var p = from; p <= to; p++) {
+            if (p >= 1 && p <= total) pages.push(p);
+          }
+        } else if (/^\d+$/.test(part)) {
+          var n = parseInt(part, 10);
+          if (n >= 1 && n <= total) pages.push(n);
+        }
+      }
+      return pages.filter(function(v, i, a) { return a.indexOf(v) === i; }).sort(function(a,b){return a-b;});
+    }
+
+    splitBtn.addEventListener('click', function() {
+      Helpers.clearBanner(banner);
+      if (!pdfBytes) return;
+      var pages = parseRange(pageRange.value, totalPages);
+      if (!pages.length) {
+        Helpers.banner(banner, 'warn', 'Please enter valid page numbers (e.g. 1-3, 5).');
+        return;
+      }
+      splitBtn.disabled = true;
+      splitBtn.textContent = 'Working…';
+      PDFLib.PDFDocument.load(pdfBytes).then(function(src) {
+        return PDFLib.PDFDocument.create().then(function(out) {
+          var indices = pages.map(function(p) { return p - 1; });
+          return out.copyPages(src, indices).then(function(copied) {
+            copied.forEach(function(page) { out.addPage(page); });
+            return out.save();
+          });
+        });
+      }).then(function(bytes) {
+        var blob = new Blob([bytes], { type: 'application/pdf' });
+        Helpers.download(blob, origName + '-pages-' + pageRange.value.replace(/\s/g,'') + '.pdf');
+        Helpers.banner(banner, 'success', 'Done! Check your downloads folder.');
+      }).catch(function(e) {
+        Helpers.banner(banner, 'error', 'Something went wrong. ' + e.message);
+      }).finally(function() {
+        var T = window.T || {};
+        splitBtn.textContent = T['btn-split-pdf'] || '✂️ Extract pages';
+        splitBtn.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>

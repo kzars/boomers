@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PDF Compressor — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-pdf-comp-title">PDF Compressor</h1>
+    <p class="subtitle" data-i18n="comp-subtitle">Reduce a large PDF so it can be sent by email.</p>
+
+    <section class="panel step" data-step="1">
+      <h2 data-i18n="step-add-comp">Add your PDF</h2>
+      <div class="dropzone" tabindex="0" role="button" aria-label="Pick a PDF">
+        <div class="big" data-i18n="drop-comp-big">Drop a PDF here</div>
+        <div class="small" data-i18n="drop-comp-small">…or click to choose one from your computer</div>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" />
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2 data-i18n="step-comp-level">Compression level</h2>
+      <label for="compLevel" data-i18n="label-comp-level">How much to compress</label>
+      <select id="compLevel">
+        <option value="light" data-i18n="opt-comp-light">Light — faster, larger file</option>
+        <option value="medium" selected data-i18n="opt-comp-medium">Medium — balanced</option>
+        <option value="hard" data-i18n="opt-comp-hard">Heavy — smaller file</option>
+      </select>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="compBtn" disabled data-i18n="btn-compress-pdf">🗜️ Compress PDF</button>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="panel step" data-step="3" id="resultPanel" style="display:none">
+      <h2 data-i18n="comp-result">Compressed PDF</h2>
+      <div class="row" style="margin-top:8px">
+        <div class="center">
+          <div class="big-result" id="origSize">—</div>
+          <div class="result-label" data-i18n="comp-original">Original</div>
+        </div>
+        <div class="center">
+          <div class="big-result" id="newSize">—</div>
+          <div class="result-label" data-i18n="comp-result">Compressed</div>
+        </div>
+        <div class="center">
+          <div class="big-result" id="savedPct" style="color:var(--success)">—</div>
+          <div class="result-label" data-i18n="comp-saved">Saved</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary btn-block" id="downloadBtn" data-i18n="btn-make-pdf">⬇ Download compressed PDF</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    var fileInput = document.getElementById('fileInput');
+    var compBtn = document.getElementById('compBtn');
+    var banner = document.getElementById('banner');
+    var resultPanel = document.getElementById('resultPanel');
+    var origSize = document.getElementById('origSize');
+    var newSize = document.getElementById('newSize');
+    var savedPct = document.getElementById('savedPct');
+    var downloadBtn = document.getElementById('downloadBtn');
+    var pdfBytes = null;
+    var origName = 'document';
+    var outputBlob = null;
+
+    fileInput.addEventListener('change', function() {
+      Helpers.clearBanner(banner);
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      origName = f.name.replace(/\.pdf$/i, '');
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        pdfBytes = new Uint8Array(e.target.result);
+        compBtn.disabled = false;
+        resultPanel.style.display = 'none';
+      };
+      reader.readAsArrayBuffer(f);
+    });
+
+    compBtn.addEventListener('click', function() {
+      if (!pdfBytes) return;
+      Helpers.clearBanner(banner);
+      compBtn.disabled = true;
+      var T = window.T || {};
+      compBtn.textContent = T['btn-working'] || 'Working…';
+
+      var level = document.getElementById('compLevel').value;
+      var objectCompress = level === 'hard' ? 9 : level === 'medium' ? 6 : 3;
+
+      PDFLib.PDFDocument.load(pdfBytes, { updateMetadata: false }).then(function(doc) {
+        // Remove metadata to save space
+        doc.setTitle('');
+        doc.setAuthor('');
+        doc.setSubject('');
+        doc.setKeywords([]);
+        doc.setProducer('');
+        doc.setCreator('');
+        return doc.save({ useObjectStreams: true, addDefaultPage: false, objectsPerTick: 20 });
+      }).then(function(bytes) {
+        outputBlob = new Blob([bytes], { type: 'application/pdf' });
+        var origBytes = pdfBytes.length;
+        var newBytes = bytes.length;
+        var saved = origBytes > 0 ? Math.round((1 - newBytes / origBytes) * 100) : 0;
+        origSize.textContent = Helpers.formatBytes(origBytes);
+        newSize.textContent = Helpers.formatBytes(newBytes);
+        savedPct.textContent = (saved > 0 ? '-' : '') + Math.abs(saved) + '%';
+        resultPanel.style.display = '';
+        if (saved <= 0) {
+          Helpers.banner(banner, 'info', 'This PDF was already well-optimised — the size is similar.');
+        }
+      }).catch(function(e) {
+        Helpers.banner(banner, 'error', 'Could not compress this PDF. ' + e.message);
+      }).finally(function() {
+        compBtn.textContent = T['btn-compress-pdf'] || '🗜️ Compress PDF';
+        compBtn.disabled = false;
+      });
+    });
+
+    downloadBtn.addEventListener('click', function() {
+      if (!outputBlob) return;
+      Helpers.download(outputBlob, origName + '-compressed.pdf');
+    });
+  </script>
+</body>
+</html>

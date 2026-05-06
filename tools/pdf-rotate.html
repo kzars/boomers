@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PDF Page Editor — Call Your Son</title>
+<link rel="stylesheet" href="../assets/css/style.css" />
+<style>
+  .page-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    margin-top: 14px;
+  }
+  .page-card {
+    background: var(--surface-2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px;
+    text-align: center;
+    position: relative;
+  }
+  .page-card.deleted {
+    opacity: 0.35;
+    border-color: var(--error);
+    border-style: dashed;
+  }
+  .page-card canvas {
+    display: block;
+    max-width: 100%;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    margin: 0 auto 8px;
+  }
+  .page-num {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .page-btns { display: flex; justify-content: center; gap: 6px; }
+  .page-btns button {
+    appearance: none;
+    border: 2px solid var(--border-strong);
+    background: var(--surface);
+    font-size: 16px;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .page-btns .del-btn { color: var(--error); border-color: var(--error); }
+  .page-btns .del-btn:hover { background: var(--error-soft); }
+  .page-btns button:hover { background: var(--accent-soft); }
+  .rot-label { font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="back-link" href="../index.html" data-i18n="back">← Back to all tools</a>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="tile-pdf-rot-title">PDF Page Editor</h1>
+    <p class="subtitle" data-i18n="rot-subtitle">Rotate or delete individual pages in a PDF.</p>
+
+    <section class="panel step" data-step="1">
+      <h2 data-i18n="step-add-rot">Add your PDF</h2>
+      <div class="dropzone" tabindex="0" role="button" aria-label="Pick a PDF">
+        <div class="big" data-i18n="drop-rot-big">Drop a PDF here</div>
+        <div class="small" data-i18n="drop-rot-small">…or click to choose one from your computer</div>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" />
+      </div>
+    </section>
+
+    <section class="panel step" data-step="2">
+      <h2 data-i18n="step-edit-pages">Edit pages</h2>
+      <div id="pageGrid" class="page-grid"></div>
+      <p id="loadingMsg" class="muted" style="margin:8px 0" data-i18n="rot-loading">Loading pages…</p>
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn btn-primary" id="saveBtn" disabled data-i18n="btn-save-pdf">💾 Save PDF</button>
+      </div>
+      <div id="banner" class="banner hidden" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/shared.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+    var fileInput = document.getElementById('fileInput');
+    var pageGrid = document.getElementById('pageGrid');
+    var loadingMsg = document.getElementById('loadingMsg');
+    var saveBtn = document.getElementById('saveBtn');
+    var banner = document.getElementById('banner');
+
+    var pdfBytes = null;
+    var origName = 'document';
+    var pageStates = []; // { rotation: 0, deleted: false }
+
+    loadingMsg.style.display = 'none';
+
+    fileInput.addEventListener('change', function() {
+      Helpers.clearBanner(banner);
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      origName = f.name.replace(/\.pdf$/i, '');
+      saveBtn.disabled = true;
+      pageGrid.innerHTML = '';
+      pageStates = [];
+      loadingMsg.style.display = '';
+      var T = window.T || {};
+      loadingMsg.textContent = T['rot-loading'] || 'Loading pages…';
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        pdfBytes = new Uint8Array(e.target.result);
+        var typedCopy = new Uint8Array(pdfBytes);
+        pdfjsLib.getDocument({ data: typedCopy }).promise.then(function(pdfDoc) {
+          var numPages = pdfDoc.numPages;
+          for (var i = 0; i < numPages; i++) pageStates.push({ rotation: 0, deleted: false });
+          var rendered = 0;
+          for (var i = 1; i <= numPages; i++) {
+            (function(pageNum) {
+              pdfDoc.getPage(pageNum).then(function(page) {
+                var card = document.createElement('div');
+                card.className = 'page-card';
+                card.id = 'card-' + pageNum;
+                var numEl = document.createElement('div');
+                numEl.className = 'page-num';
+                numEl.textContent = pageNum;
+                var canvas = document.createElement('canvas');
+                var viewport = page.getViewport({ scale: 0.5 });
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport });
+                var rotLabel = document.createElement('div');
+                rotLabel.className = 'rot-label';
+                rotLabel.id = 'rot-' + pageNum;
+                var btns = document.createElement('div');
+                btns.className = 'page-btns';
+                var ccwBtn = document.createElement('button');
+                ccwBtn.title = 'Rotate left'; ccwBtn.textContent = '↺';
+                var cwBtn = document.createElement('button');
+                cwBtn.title = 'Rotate right'; cwBtn.textContent = '↻';
+                var delBtn = document.createElement('button');
+                delBtn.className = 'del-btn'; delBtn.title = 'Delete'; delBtn.textContent = '🗑';
+                ccwBtn.addEventListener('click', function() { rotate(pageNum, -90); });
+                cwBtn.addEventListener('click', function() { rotate(pageNum, 90); });
+                delBtn.addEventListener('click', function() { toggleDelete(pageNum); });
+                btns.appendChild(ccwBtn); btns.appendChild(cwBtn); btns.appendChild(delBtn);
+                card.appendChild(numEl); card.appendChild(canvas);
+                card.appendChild(rotLabel); card.appendChild(btns);
+                pageGrid.appendChild(card);
+                rendered++;
+                if (rendered === numPages) {
+                  loadingMsg.style.display = 'none';
+                  saveBtn.disabled = false;
+                }
+              });
+            })(i);
+          }
+        }).catch(function(e) {
+          loadingMsg.style.display = 'none';
+          Helpers.banner(banner, 'error', 'Could not load this PDF. ' + e.message);
+        });
+      };
+      reader.readAsArrayBuffer(f);
+    });
+
+    function rotate(pageNum, deg) {
+      var idx = pageNum - 1;
+      pageStates[idx].rotation = ((pageStates[idx].rotation + deg) % 360 + 360) % 360;
+      var lbl = document.getElementById('rot-' + pageNum);
+      if (lbl) lbl.textContent = pageStates[idx].rotation ? ('Rotated ' + pageStates[idx].rotation + '°') : '';
+    }
+
+    function toggleDelete(pageNum) {
+      var idx = pageNum - 1;
+      pageStates[idx].deleted = !pageStates[idx].deleted;
+      var card = document.getElementById('card-' + pageNum);
+      if (card) card.classList.toggle('deleted', pageStates[idx].deleted);
+    }
+
+    saveBtn.addEventListener('click', function() {
+      if (!pdfBytes) return;
+      Helpers.clearBanner(banner);
+      saveBtn.disabled = true;
+      var T = window.T || {};
+      saveBtn.textContent = T['btn-working'] || 'Working…';
+
+      PDFLib.PDFDocument.load(pdfBytes).then(function(doc) {
+        var toKeep = [];
+        for (var i = 0; i < pageStates.length; i++) {
+          if (!pageStates[i].deleted) toKeep.push(i);
+        }
+        if (!toKeep.length) {
+          Helpers.banner(banner, 'warn', 'All pages are deleted — please keep at least one.');
+          return Promise.reject(new Error('no pages'));
+        }
+        var pages = doc.getPages();
+        // Remove deleted pages (in reverse order so indices don't shift)
+        for (var j = pageStates.length - 1; j >= 0; j--) {
+          if (pageStates[j].deleted) doc.removePage(j);
+        }
+        // Apply rotations to remaining pages
+        var remaining = doc.getPages();
+        var kept = 0;
+        for (var k = 0; k < pageStates.length; k++) {
+          if (!pageStates[k].deleted) {
+            var r = pageStates[k].rotation;
+            if (r) {
+              var p = remaining[kept];
+              var cur = p.getRotation().angle;
+              p.setRotation(PDFLib.degrees((cur + r) % 360));
+            }
+            kept++;
+          }
+        }
+        return doc.save();
+      }).then(function(bytes) {
+        var blob = new Blob([bytes], { type: 'application/pdf' });
+        Helpers.download(blob, origName + '-edited.pdf');
+        Helpers.banner(banner, 'success', 'Done! Check your downloads folder.');
+      }).catch(function(e) {
+        if (e.message !== 'no pages') Helpers.banner(banner, 'error', 'Could not save. ' + e.message);
+      }).finally(function() {
+        saveBtn.textContent = T['btn-save-pdf'] || '💾 Save PDF';
+        saveBtn.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>
